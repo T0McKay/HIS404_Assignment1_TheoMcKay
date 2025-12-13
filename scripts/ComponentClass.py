@@ -9,7 +9,7 @@ class StatusT(Enum):
     UNKNOWN = 4
 
 class Component:
-    def __init__(self, componentID, componentType, quantity, status, location):
+    def __init__(self, componentID : int, componentType : str, quantity : int, status : StatusT, location : Location):
         self.componentID = componentID
         self.componentType = componentType
         self.quantity = quantity

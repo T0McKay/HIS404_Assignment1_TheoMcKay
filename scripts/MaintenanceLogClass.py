@@ -1,7 +1,8 @@
-#will have to import engineer and component classes
+from EngineerClass import Engineer
+from ComponentClass import Component
 
 class MaintenanceLog:
-    def __init__(self, logID, datePerformed, action, relatedComponent, userPerforming):
+    def __init__(self, logID : int, datePerformed : str, action : str, relatedComponent : Component, userPerforming : Engineer):
         self.logID = logID
         self.datePerformed = datePerformed
         self.action = action
