@@ -59,7 +59,7 @@ class DatabaseManager:
 
         for row in output:
             #gets location object of component
-            for location in DatabaseManager.locations:
+            for location in ObjectTracker.locations:
                 if row["LocationID"] == location.getLocationID() : 
                     compLocation = location
 
@@ -90,12 +90,12 @@ class DatabaseManager:
 
         for row in output:
             #gets component object of maintenance log
-            for component in DatabaseManager.components:
+            for component in ObjectTracker.components:
                 if row["ComponentID"] == component.getComponentID() : 
                     logComp = component
 
             #gets user object of maintenance log
-            for user in DatabaseManager.users:
+            for user in ObjectTracker.users:
                 if row["UserID"] == user.getUserID() : 
                     logUser = user
 
