@@ -6,6 +6,10 @@ from MaintenanceLogClass import MaintenanceLog
 from ComponentClass import Component
 from ObjectTrackerClass import ObjectTracker
 
+#-------------------------------------------------------------------------------------------------
+# Database Manager class is used any time a connection, lookup and update is made to the database
+#-------------------------------------------------------------------------------------------------
+
 class DatabaseManager:
     #will act as static class but using static methods and class attributes - will also throw error if tries to instatiate
 
