@@ -4,13 +4,10 @@ from ManagerClass import Manager
 from LocationClass import Location
 from MaintenanceLogClass import MaintenanceLog
 from ComponentClass import Component
+from ObjectTrackerClass import ObjectTracker
 
 class DatabaseManager:
     #will act as static class but using static methods and class attributes - will also throw error if tries to instatiate
-    locations = []
-    components = []
-    users = []
-    maintenanceLogs = []
 
 #   ---------------------------------------
 #   ---        Connect method           ---
@@ -46,7 +43,7 @@ class DatabaseManager:
         for row in output:
             #row is an sqliteRow so can access using column names
             newLocation = Location(locationID=row["LocationID"], name=row["Name"], locationType=row["Type"], postcode=row["Postcode"])
-            DatabaseManager.locations.append(newLocation)
+            ObjectTracker.addLocation(newLocation)
 
 
         #---------------------------------------------
@@ -63,7 +60,7 @@ class DatabaseManager:
                     compLocation = location
 
             newComp = Component(componentID=row["ComponentID"], componentType=row["Type"], quantity=row["Quantity"], status=row["Status"], location=compLocation)
-            DatabaseManager.components.append(newComp)
+            ObjectTracker.addComponent(newComp)
 
         #----------------------------------------
         #--- Loads User Objects from Database ---
@@ -78,7 +75,7 @@ class DatabaseManager:
             else : #engineer role
                 newUser = Engineer(userID=row["UserID"], name=row["Name"], hashedPassword=row["HashedPassword"])
 
-            DatabaseManager.users.append(newUser)
+            ObjectTracker.addUser(newUser)
 
         #---------------------------------------------------
         #--- Loads Maintenance Log Objects from Database ---
@@ -99,7 +96,7 @@ class DatabaseManager:
                     logUser = user
 
             newLog = MaintenanceLog(logID=row["LogID"], datePerformed=row["DatePerformed"], action=row["Action"], component=logComp, userPerforming=logUser)
-            DatabaseManager.maintenanceLogs.append(newLog)
+            ObjectTracker.addMaintenanceLog(newLog)
 
         #connection closed as no longer needed
         conn.close()
