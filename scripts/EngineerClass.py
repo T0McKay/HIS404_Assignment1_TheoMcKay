@@ -3,3 +3,12 @@ class Engineer:
         self.userID = userID
         self.name = name
         self.hashedPassword = hashedPassword
+
+    def getUserID(self) :
+        return self.userID
+    
+    def getName(self) :
+        return self.name
+    
+    def getHashedPassword(self) :
+        return self.hashedPassword

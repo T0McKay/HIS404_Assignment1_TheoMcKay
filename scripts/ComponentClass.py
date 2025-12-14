@@ -16,3 +16,17 @@ class Component:
         self.status = status
         self.location = location
 
+    def getComponentID(self) :
+        return self.componentID
+    
+    def getComponentType(self) :
+        return self.componentType
+    
+    def getQuantity(self) :
+        return self.quantity
+    
+    def getStatus(self) :
+        return self.status
+    
+    def getLocation(self) :
+        return self.location
