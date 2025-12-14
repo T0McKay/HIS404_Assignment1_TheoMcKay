@@ -1,6 +1,11 @@
 from EngineerClass import Engineer
 from ComponentClass import Component
 
+#-----------------------------------------------------------------------------------
+# Maintenance log is a class for log objects to be created.
+# It stores the actions performed as well as the user and component objects related
+#-----------------------------------------------------------------------------------
+
 class MaintenanceLog:
     def __init__(self, logID : int, datePerformed : str, action : str, component : Component, userPerforming : Engineer):
         self.logID = logID

@@ -8,10 +8,10 @@ from ObjectTrackerClass import ObjectTracker
 
 #-------------------------------------------------------------------------------------------------
 # Database Manager class is used any time a connection, lookup and update is made to the database
+# Acts as a static class using class methods and attributes. Cannot create objects of this class
 #-------------------------------------------------------------------------------------------------
 
 class DatabaseManager:
-    #will act as static class but using static methods and class attributes - will also throw error if tries to instatiate
 
 #   ---------------------------------------
 #   ---        Connect method           ---

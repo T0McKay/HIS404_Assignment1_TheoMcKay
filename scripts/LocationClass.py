@@ -1,5 +1,9 @@
 from enum import Enum
 
+#------------------------------------------------------------------------------------------
+# LocationT is an enumeration that stores the different types of location an object may be
+#------------------------------------------------------------------------------------------
+
 class LocationT(Enum):
     WAREHOUSE = 1
     HANGAR = 2
@@ -8,6 +12,10 @@ class LocationT(Enum):
     LABORATORY = 5
     OFFICE = 6
     OTHER = 7
+
+#-----------------------------------------------------------------------------------------
+# Locations class is a template for possible locations that components could be stored at
+#-----------------------------------------------------------------------------------------
 
 class Location:
     def __init__(self, locationID : int ,name : str, locationType : LocationT, postcode : str):
