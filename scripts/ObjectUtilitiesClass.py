@@ -34,8 +34,25 @@ class ObjectUtilities :
 #   ----------------------------------------------------------
     @classmethod
     def hashString(cls, rawString) :
-        #converts string to bytes, creates a salt and hashes string
         byteString = rawString.encode('utf-8')
         salt = bcrypt.gensalt()
-        hashedString = bcrypt.hashpw(byteString, salt)
+        hashedString = bcrypt.hashpw(byteString, salt).strip().decode() #.decode gets rid of python wrapper for byte objects
         return hashedString
+    
+#   ---------------------------------------------------------------------------
+#   ---                     Authenticate User Method                        ---
+#   --- Compares entered userIDs and passwords. Returns true if user exists ---
+#   ---------------------------------------------------------------------------
+    @classmethod
+    def authenticateUser(cls, checkUserID, checkPassword) :
+        # tries to convert entered userID to int, if it doesn't work then its incorrect
+        try :
+            checkUserID = int (checkUserID)
+            for user in ObjectUtilities.users :
+                if checkUserID == user.userID and bcrypt.checkpw(checkPassword.encode('utf-8'), user.hashedPassword.encode('utf-8')) : 
+                    return True
+                else :
+                    return False
+        except ValueError :
+            return False
+        

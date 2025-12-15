@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from functools import partial
+from ObjectUtilitiesClass import ObjectUtilities
 
 class UIManager : 
 
@@ -12,7 +13,7 @@ class UIManager :
         #once login is correct then opens new database window
 
         #in database there is a menu with : components, add component, maintenance logs, add log
-        
+
 
     @classmethod
     def displayLoginPage(cls) :
@@ -30,16 +31,18 @@ class UIManager :
         userIDLabel = Label(frame, text="User ID:")
         userIDLabel.pack(pady=5)
         userID = StringVar()
-        userIDEntry = Entry(frame, textvariable=userID).pack(pady=5)
+        userIDEntry = Entry(frame, textvariable=userID)
+        userIDEntry.pack(pady=5)
 
         #password label and input box
         passwordLabel = Label(frame,text="Password:")
         passwordLabel.pack(pady=5) 
         password = StringVar()
-        passwordEntry = Entry(frame, textvariable=password, show='*').pack(pady=5) #asterisks covers password while writing
+        passwordEntry = Entry(frame, textvariable=password, show='*') #asterisks covers password while writing
+        passwordEntry.pack(pady=5)
 
         #partial function created to pass parameters when button is clicked
-        attemptLoginPartialFunc = partial(UIManager.attemptLogin, usr=userID, pwd=password)
+        attemptLoginPartialFunc = partial(UIManager.authenticateLogin, usr=userID, pwd=password)
 
         #login button
         loginButton = Button(frame, text="Login", command=attemptLoginPartialFunc)
@@ -49,16 +52,18 @@ class UIManager :
         root.mainloop()
 
     @classmethod
-    def attemptLogin(cls, usr, pwd) :
+    def authenticateLogin(cls, usr, pwd) :
         # user ID and password entrys must only be gotten when button is clicked, otherwise it will be null
         userIDEntry = usr.get()
         passwordEntry = pwd.get()
         
         #calls authenticate method which returns bool 
-        succeededLogin : bool = False
+        succeededLogin = ObjectUtilities.authenticateUser(userIDEntry, passwordEntry)
         #if bool true then swap page
-        #if false show error message
-        if not succeededLogin :
+        if succeededLogin : 
+            #open new inventory window
+            messagebox.showerror("Success!", "It works!")
+        else :
             #show error
             messagebox.showerror("Login Failed", "Invalid user ID or password.")
 
