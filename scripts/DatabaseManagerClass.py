@@ -4,7 +4,7 @@ from ManagerClass import Manager
 from LocationClass import Location
 from MaintenanceLogClass import MaintenanceLog
 from ComponentClass import Component
-from ObjectTrackerClass import ObjectTracker
+from ObjectUtilitiesClass import ObjectUtilities
 
 #-------------------------------------------------------------------------------------------------
 # Database Manager class is used any time a connection, lookup and update is made to the database
@@ -47,7 +47,7 @@ class DatabaseManager:
         for row in output:
             #row is an sqliteRow so can access using column names
             newLocation = Location(locationID=row["LocationID"], name=row["Name"], locationType=row["Type"], postcode=row["Postcode"])
-            ObjectTracker.addLocation(newLocation)
+            ObjectUtilities.addLocation(newLocation)
 
 
         #---------------------------------------------
@@ -59,12 +59,12 @@ class DatabaseManager:
 
         for row in output:
             #gets location object of component
-            for location in ObjectTracker.locations:
+            for location in ObjectUtilities.locations:
                 if row["LocationID"] == location.getLocationID() : 
                     compLocation = location
 
             newComp = Component(componentID=row["ComponentID"], componentType=row["Type"], quantity=row["Quantity"], status=row["Status"], location=compLocation)
-            ObjectTracker.addComponent(newComp)
+            ObjectUtilities.addComponent(newComp)
 
         #----------------------------------------
         #--- Loads User Objects from Database ---
@@ -79,7 +79,7 @@ class DatabaseManager:
             else : #engineer role
                 newUser = Engineer(userID=row["UserID"], name=row["Name"], hashedPassword=row["HashedPassword"])
 
-            ObjectTracker.addUser(newUser)
+            ObjectUtilities.addUser(newUser)
 
         #---------------------------------------------------
         #--- Loads Maintenance Log Objects from Database ---
@@ -90,17 +90,17 @@ class DatabaseManager:
 
         for row in output:
             #gets component object of maintenance log
-            for component in ObjectTracker.components:
+            for component in ObjectUtilities.components:
                 if row["ComponentID"] == component.getComponentID() : 
                     logComp = component
 
             #gets user object of maintenance log
-            for user in ObjectTracker.users:
+            for user in ObjectUtilities.users:
                 if row["UserID"] == user.getUserID() : 
                     logUser = user
 
             newLog = MaintenanceLog(logID=row["LogID"], datePerformed=row["DatePerformed"], action=row["Action"], component=logComp, userPerforming=logUser)
-            ObjectTracker.addMaintenanceLog(newLog)
+            ObjectUtilities.addMaintenanceLog(newLog)
 
         #connection closed as no longer needed
         conn.close()
