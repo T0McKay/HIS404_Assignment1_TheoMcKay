@@ -1,19 +1,9 @@
 from tkinter import *
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 from functools import partial
 from ObjectUtilitiesClass import ObjectUtilities
 
 class UIManager : 
-
-    @classmethod
-    def displayWindows(cls) :
-        #start with login page
-        UIManager.displayLoginPage()
-
-        #once login is correct then opens new database window
-
-        #in database there is a menu with : components, add component, maintenance logs, add log
-
 
     @classmethod
     def displayLoginPage(cls) :
@@ -57,15 +47,41 @@ class UIManager :
         userIDEntry = usr.get()
         passwordEntry = pwd.get()
         
-        #calls authenticate method which returns bool 
-        succeededLogin = ObjectUtilities.authenticateUser(userIDEntry, passwordEntry)
-        #if bool true then swap page
-        if succeededLogin : 
-            #open new inventory window
-            messagebox.showerror("Success!", "It works!")
-        else :
-            #show error
+        #calls authenticate method which returns bool
+        succeededUserLogin = ObjectUtilities.authenticateUser(userIDEntry, passwordEntry)
+        
+        if succeededUserLogin == False : 
             messagebox.showerror("Login Failed", "Invalid user ID or password.")
+        else :
+            UIManager.windowNavigator()
+
+    @classmethod
+    def windowNavigator(cls) :
+        #once login is correct then opens new database window
+        UIManager.inventoryWindow()
+        #in database there is a menu with : components, add component, maintenance logs, add log
+
+    @classmethod
+    def inventoryWindow(cls) :
+        #gets route window with standardised title and menu bar
+        root = UIManager.createWindow()
+
+        #component table created with column headers
+        treeView = ttk.Treeview(root, columns=("ComponentID", "Type", "Quantity", "Status", "Location"), show="headings")
+
+        #prints headers
+        for col in ("ComponentID", "Type", "Quantity", "Status", "Location") :
+            treeView.heading(col, text=col)
+            treeView.column(col, anchor="center", stretch=True, width=100)
+
+        #displays loaded components in table
+        for component in range(ObjectUtilities.getNumComponents()) :
+            comp = ObjectUtilities.getComponent(component)
+            treeView.insert("", "end", values=(str(comp.getComponentID()), str(comp.getComponentType()), str(comp.getQuantity()), str(comp.getStatus()), comp.getLocation().getName()))
+
+        treeView.pack(padx=5, pady=5, expand=True)
+        root.mainloop()
+
 
 
     @classmethod

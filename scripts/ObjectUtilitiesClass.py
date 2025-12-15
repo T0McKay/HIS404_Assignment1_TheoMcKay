@@ -27,6 +27,14 @@ class ObjectUtilities :
     def addMaintenanceLog(cls, log) :
         cls.maintenanceLogs.append(log)
 
+    @classmethod
+    def getNumComponents(cls) :
+        return len(cls.components)
+    
+    @classmethod
+    def getComponent(cls, index) :
+        return cls.components[index]
+
 #   ----------------------------------------------------------
 #   ---                Hash String Method                  ---
 #   --- Converts string to bytes, generates a salt to hash ---
