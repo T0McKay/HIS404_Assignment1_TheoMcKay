@@ -105,27 +105,76 @@ class DatabaseManager:
         #connection closed as no longer needed
         conn.close()
 
-    @classmethod
-    def getRecord():
-        
-        pass
-
-    #------------------------------------------------
-    #----- POLYMORPHISM:                        -----
-    #------------------------------------------------
+#   -------------------------------------------------------------------------
+#   ---                       Add Objects Method                          ---
+#   ---  Uses Polymorphism to call same method name for different objects ---
+#   --- Takes object, inserts using SWL, commits addition and disconnects ---
+#   -------------------------------------------------------------------------
 
     @classmethod
-    def updateDatabase(object : Engineer) :
-        pass
+    def addToDatabase(object : Engineer) :
+        #connecting to sqlite database
+        conn = DatabaseManager.connect()
+        #cursor object
+        cursor = conn.cursor()
+
+        #adds information to database for backup
+        cursor.execute("""
+            INSERT INTO Users (UserID, Name, Role, HashedPassword)
+            VALUES (?, ?, ?, ?)
+        """, (object.getUserID(), object.getName(), "ENGINEER", object.getHashedPassword())) #will be updated in future to implement roles
+
+        #commits and closes connection
+        conn.commit()
+        conn.close()
 
     @classmethod
-    def updateDatabase(object : Location) :
-        pass
+    def addToDatabase(object : Location) :
+        #connecting to sqlite database
+        conn = DatabaseManager.connect()
+        #cursor object
+        cursor = conn.cursor()
+
+        #adds information to database for backup
+        cursor.execute("""
+            INSERT INTO Locations (LocationID, Name, Type, Postcode)
+            VALUES (?, ?, ?, ?)
+        """, (object.getLocationID(), object.getName(), object.getLocationType(), object.getPostcode()))
+
+        #commits and closes connection
+        conn.commit()
+        conn.close()
 
     @classmethod
-    def updateDatabase(object : Component) :
-        pass
+    def addToDatabase(object : Component) :
+        #connecting to sqlite database
+        conn = DatabaseManager.connect()
+        #cursor object
+        cursor = conn.cursor()
+
+        #adds information to database for backup
+        cursor.execute("""
+            INSERT INTO Components (ComponentID, Type, Quantity, Status, LocationID)
+            VALUES (?, ?, ?, ?)
+        """, (object.getComponentID(), object.getComponentType(), object.getQuantity(), object.getStatus(), object.getLocation().getLocationID()))
+
+        #commits and closes connection
+        conn.commit()
+        conn.close()
 
     @classmethod
-    def updateDatabase(object : MaintenanceLog) :
-        pass
+    def addToDatabase(object : MaintenanceLog) :
+        #connecting to sqlite database
+        conn = DatabaseManager.connect()
+        #cursor object
+        cursor = conn.cursor()
+
+        #adds information to database for backup
+        cursor.execute("""
+            INSERT INTO MaintenanceLogs (LogID, DatePerformed, Action, ComponentID, UserID)
+            VALUES (?, ?, ?, ?)
+        """, (object.getLogID(), object.getDatePerformed(), object.getAction(), object.getComponent().getComponentID(), object.getUserPerforming().getUserID()))
+
+        #commits and closes connection
+        conn.commit()
+        conn.close()
