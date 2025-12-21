@@ -3,7 +3,7 @@ from EngineerClass import Engineer
 from ManagerClass import Manager
 from LocationClass import Location
 from MaintenanceLogClass import MaintenanceLog
-from ComponentClass import Component
+from ComponentClass import Component, StatusT
 from ObjectUtilitiesClass import ObjectUtilities
 
 #-------------------------------------------------------------------------------------------------
@@ -57,13 +57,17 @@ class DatabaseManager:
         cursor.execute("SELECT * FROM Components")
         output = cursor.fetchall()
 
-        for row in output:
+        for row in output:  
+            #gets status and converts to statusT enum
+            compStatus = row["Status"]
+            status = StatusT[compStatus]
+
             #gets location object of component
             for location in ObjectUtilities.locations:
                 if row["LocationID"] == location.getLocationID() : 
                     compLocation = location
 
-            newComp = Component(componentID=row["ComponentID"], componentType=row["Type"], quantity=row["Quantity"], status=row["Status"], location=compLocation)
+            newComp = Component(componentID=row["ComponentID"], componentType=row["Type"], quantity=row["Quantity"], status=status, location=compLocation)
             ObjectUtilities.addComponent(newComp)
 
         #----------------------------------------
@@ -107,12 +111,11 @@ class DatabaseManager:
 
 #   -------------------------------------------------------------------------
 #   ---                       Add Objects Method                          ---
-#   ---  Uses Polymorphism to call same method name for different objects ---
 #   --- Takes object, inserts using SWL, commits addition and disconnects ---
 #   -------------------------------------------------------------------------
 
     @classmethod
-    def addToDatabase(object : Engineer) :
+    def addUserToDatabase(cls, object : Engineer) :
         #connecting to sqlite database
         conn = DatabaseManager.connect()
         #cursor object
@@ -129,7 +132,7 @@ class DatabaseManager:
         conn.close()
 
     @classmethod
-    def addToDatabase(object : Location) :
+    def addLocationToDatabase(cls, object : Location) :
         #connecting to sqlite database
         conn = DatabaseManager.connect()
         #cursor object
@@ -146,7 +149,7 @@ class DatabaseManager:
         conn.close()
 
     @classmethod
-    def addToDatabase(object : Component) :
+    def addComponentToDatabase(cls, object : Component) :
         #connecting to sqlite database
         conn = DatabaseManager.connect()
         #cursor object
@@ -155,15 +158,15 @@ class DatabaseManager:
         #adds information to database for backup
         cursor.execute("""
             INSERT INTO Components (ComponentID, Type, Quantity, Status, LocationID)
-            VALUES (?, ?, ?, ?)
-        """, (object.getComponentID(), object.getComponentType(), object.getQuantity(), object.getStatus(), object.getLocation().getLocationID()))
+            VALUES (?, ?, ?, ?, ?)
+        """, (object.getComponentID(), object.getComponentType(), object.getQuantity(), object.getStatus().name, object.getLocation().getLocationID()))
 
         #commits and closes connection
         conn.commit()
         conn.close()
 
     @classmethod
-    def addToDatabase(object : MaintenanceLog) :
+    def addLogToDatabase(cls, object : MaintenanceLog) :
         #connecting to sqlite database
         conn = DatabaseManager.connect()
         #cursor object
