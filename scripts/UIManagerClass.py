@@ -472,5 +472,3 @@ class UIManager :
         userID = StringVar()
         userIDEntry = Entry(frame, textvariable=userID)
         userIDEntry.pack(pady=5)
-
-

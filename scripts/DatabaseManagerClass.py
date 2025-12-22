@@ -1,6 +1,5 @@
 import sqlite3
 from EngineerClass import Engineer
-from ManagerClass import Manager
 from LocationClass import Location
 from MaintenanceLogClass import MaintenanceLog
 from ComponentClass import Component, StatusT
@@ -79,9 +78,9 @@ class DatabaseManager:
 
         for row in output:
             if row["Role"] == "MANAGER" :
-                newUser = Manager(userID=row["UserID"], name=row["Name"], hashedPassword=row["HashedPassword"])
+                newUser = Engineer(userID=row["UserID"], name=row["Name"], hashedPassword=row["HashedPassword"], isManager=True)
             else : #engineer role
-                newUser = Engineer(userID=row["UserID"], name=row["Name"], hashedPassword=row["HashedPassword"])
+                newUser = Engineer(userID=row["UserID"], name=row["Name"], hashedPassword=row["HashedPassword"], isManager=False)
 
             ObjectUtilities.addUser(newUser)
 
@@ -121,11 +120,17 @@ class DatabaseManager:
         #cursor object
         cursor = conn.cursor()
 
+        role = ""
+        if object.getIsManager :
+            role += "MANAGER"
+        else :
+            role += "ENGINEER"
+
         #adds information to database for backup
         cursor.execute("""
             INSERT INTO Users (UserID, Name, Role, HashedPassword)
             VALUES (?, ?, ?, ?)
-        """, (object.getUserID(), object.getName(), "ENGINEER", object.getHashedPassword())) #will be updated in future to implement roles
+        """, (object.getUserID(), object.getName(), role, object.getHashedPassword()))
 
         #commits and closes connection
         conn.commit()

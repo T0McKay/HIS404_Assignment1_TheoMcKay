@@ -4,10 +4,11 @@
 #--------------------------------------------------------------------------------------------------
 
 class Engineer:
-    def __init__(self, userID : int, name : str, hashedPassword : str):
+    def __init__(self, userID : int, name : str, hashedPassword : str, isManager : bool):
         self.userID = userID
         self.name = name
         self.hashedPassword = hashedPassword
+        self.isManager = isManager
 
     def getUserID(self) :
         return self.userID
@@ -17,3 +18,6 @@ class Engineer:
     
     def getHashedPassword(self) :
         return self.hashedPassword
+    
+    def getIsManager(self) :
+        return self.isManager
