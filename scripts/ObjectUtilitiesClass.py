@@ -103,6 +103,10 @@ class ObjectUtilities :
     @classmethod
     def getLog(cls, index) :
         return cls.maintenanceLogs[index]
+    
+    @classmethod
+    def getNextLogID(cls) :
+        return cls.maintenanceLogs[ObjectUtilities.getNumLogs() -1].getLogID() + 1
 
 #   ----------------------------------------------------------
 #   ---                Hash String Method                  ---

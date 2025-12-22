@@ -315,26 +315,12 @@ class UIManager :
         addLogPopup.geometry("300x400")
         addLogPopup.resizable(False, False)
 
-        #log ID label and input box - MAYBE SHOULD MAKE THIS AUTOMATED AND NOT ENTERED
-        logIDLabel = Label(addLogPopup, text="Log ID:")
+        #log ID label and automated log ID
+        logIDTitle = Label(addLogPopup, text="Log ID:")
+        logIDTitle.pack(pady=5)
+        logID = ObjectUtilities.getNextLogID()
+        logIDLabel = Label(addLogPopup, text=str(logID))
         logIDLabel.pack(pady=5)
-        logID = StringVar()
-        logIDEntry = Entry(addLogPopup, textvariable=logID)
-        logIDEntry.pack(pady=5)
-
-        def verifyUniqueLogID(userInput) :
-            try :
-                userInput = int(userInput)
-                if userInput > 0 :
-                    for log in range(ObjectUtilities.getNumLogs()) :
-                        if ObjectUtilities.getLog(log).getLogID() == userInput :
-                            return -1
-                    #has exited for statement:
-                    return userInput
-                else :
-                    return -1
-            except Exception :
-                return -1
 
         #date performed label and input box - returns date as DD/MM/YYYY - need to add container for date
 
@@ -404,11 +390,6 @@ class UIManager :
         #embedded submit function to be executed on button click
         def submit() :
             validSubmission = True
-            
-            #gets log ID
-            selectedLogID = verifyUniqueLogID(logIDEntry.get())
-            if selectedLogID == -1 :
-                validSubmission = False
 
             #gets date using three day month and year drop downs
             try :
@@ -450,7 +431,7 @@ class UIManager :
 
             if validSubmission == True : 
                 #create component object
-                newLog = MaintenanceLog(logID=selectedLogID, datePerformed=selectedDatePerformed , action=enteredAction , userPerforming=selectedUser , component=selectedComp )
+                newLog = MaintenanceLog(logID=logID, datePerformed=selectedDatePerformed , action=enteredAction , userPerforming=selectedUser , component=selectedComp )
 
                 #update components array in object utilities
                 ObjectUtilities.addMaintenanceLog(newLog)
