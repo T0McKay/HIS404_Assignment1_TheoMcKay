@@ -15,6 +15,11 @@ class ObjectUtilities :
     loggedIn = False
     loggedInAs : Engineer
 
+#   ----------------------------------------------------------------------
+#   ---                   User Logged In Management                    ---
+#   --- Getters and setters for log in status and user if there is one ---
+#   ----------------------------------------------------------------------
+
     @classmethod
     def getLoggedIn(cls) :
         return cls.loggedIn
@@ -48,10 +53,10 @@ class ObjectUtilities :
     def getLocation(cls, index) :
         return cls.locations[index]
 
-#   -----------------------------------------------------
-#   ---             Component Management              ---
-#   --- Getters (for a location AND num of) + setters ---
-#   -----------------------------------------------------
+#   ------------------------------------------------------
+#   ---              Component Management              ---
+#   --- Getters (for a component AND num of) + setters ---
+#   ------------------------------------------------------
 
     @classmethod
     def addComponent(cls, comp) :
@@ -65,19 +70,27 @@ class ObjectUtilities :
     def getComponent(cls, index) :
         return cls.components[index]
     
-#   -----------------------------------------------------
-#   ---               User Management                 ---
-#   --- Getters (for a location AND num of) + setters ---
-#   -----------------------------------------------------
+#   -------------------------------------------------
+#   ---             User Management               ---
+#   --- Getters (for a user AND num of) + setters ---
+#   -------------------------------------------------
 
     @classmethod
     def addUser(cls, user) :
         cls.users.append(user)
     
-#   -----------------------------------------------------
-#   ---         Maintenance Log Management            ---
-#   --- Getters (for a location AND num of) + setters ---
-#   -----------------------------------------------------
+    @classmethod
+    def getNumUsers(cls) :
+        return len(ObjectUtilities.users)
+    
+    @classmethod
+    def getUser(cls, index) :
+        return ObjectUtilities.users[index]
+
+#   ------------------------------------------------
+#   ---        Maintenance Log Management        ---
+#   --- Getters (for a log AND num of) + setters ---
+#   ------------------------------------------------
 
     @classmethod
     def addMaintenanceLog(cls, log) :
