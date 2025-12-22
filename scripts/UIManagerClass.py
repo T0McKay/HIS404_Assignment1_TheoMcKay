@@ -6,8 +6,17 @@ from ComponentClass import StatusT, Component
 from MaintenanceLogClass import MaintenanceLog
 from DatabaseManagerClass import DatabaseManager
 
+#   -----------------------------------------------------------------------------
+#   ---                          UI Manager Class                             ---
+#   --- Provides UI using tkinter library for user to interact with inventory ---
+#   -----------------------------------------------------------------------------
+
 class UIManager : 
 
+#   --------------------------------------------------------------------------
+#   ---                    Display Login Page Method                       ---
+#   --- Provides label and text boxes for users to input IDs and passwords ---
+#   --------------------------------------------------------------------------
     @classmethod
     def displayLoginPage(cls) :
         # creates a root window
@@ -44,6 +53,10 @@ class UIManager :
         # Start the Tkinter event loop
         root.mainloop()
 
+#   ---------------------------------------------------------------------------
+#   ---                     Authenticate Login Method                       ---
+#   --- Used by login page to interact with Object utilities for validation ---
+#   ---------------------------------------------------------------------------
     @classmethod
     def authenticateLogin(cls, rootWindow : Tk, usr, pwd) :
         # user ID and password entrys must only be gotten when button is clicked, otherwise it will be null
@@ -59,6 +72,10 @@ class UIManager :
             rootWindow.destroy()
             UIManager.showInventoryPage()
 
+#   -------------------------------------------------------------------------------------------
+#   ---                                Create Window Menu                                   ---
+#   --- Used by all page methods excluding login to create root with identical menu options ---
+#   -------------------------------------------------------------------------------------------
     @classmethod
     def createWindowMenu(cls) :
         # creates a root window
@@ -84,6 +101,10 @@ class UIManager :
 
         return root
 
+#   ----------------------------------------------------------
+#   ---                 Show Inventory Page                ---
+#   --- Displays components currently loaded in at runtime ---
+#   ----------------------------------------------------------
     @classmethod
     def showInventoryPage(cls) :
         #gets route window with standardised title and menu bar
@@ -92,6 +113,10 @@ class UIManager :
         #creates frame to holder the table and scroll bar
         frame = Frame(root)
         frame.pack(fill=BOTH, expand=True)
+
+        #inventory title label
+        componentsLabel = Label(frame, text="Components Inventory")
+        componentsLabel.pack(pady=5)
 
         #component table created with column headers
         treeView = ttk.Treeview(root, columns=("ComponentID", "Type", "Quantity", "Status", "Location"), show="headings")
@@ -113,6 +138,10 @@ class UIManager :
         treeView.pack(padx=5, pady=5, expand=True)
         root.mainloop()
 
+#   ----------------------------------------------------------------------------------------------
+#   ---                               Show Maintenance Logs Page                               ---
+#   --- Displays all maintenance logs independent of components currently loaded in at runtime ---
+#   ----------------------------------------------------------------------------------------------
     @classmethod
     def showMaintenanceLogs(cls) : 
         #gets route window with standardised title and menu bar
@@ -121,6 +150,10 @@ class UIManager :
         #creates frame to holder the table and scroll bar
         frame = Frame(root)
         frame.pack(fill=BOTH, expand=True)
+
+        #maintenance logs title
+        titleLabel = Label(frame, text="Maintenance Logs")
+        titleLabel.pack(pady=5)
 
         #component table created with column headers
         treeView = ttk.Treeview(root, columns=("LogID", "Component", "Action", "Date", "User"), show="headings")
@@ -142,6 +175,10 @@ class UIManager :
         treeView.pack(padx=5, pady=5, expand=True)
         root.mainloop()
 
+#   ------------------------------------------------------------------------------------------
+#   ---                                  Add Component Page                                ---
+#   --- Provides popup and authenticates new component, then requests addition to database ---
+#   ------------------------------------------------------------------------------------------
     @classmethod
     def addComponentPage(cls) : 
         #creates popup to enter component details
@@ -266,7 +303,10 @@ class UIManager :
         submitComponentButton = ttk.Button(addCompPopup, text="Add Component", command=submit)
         submitComponentButton.pack(pady=15)
         
-
+#   ------------------------------------------------------------------------------------
+#   ---                                  Add Log Page                                ---
+#   --- Provides popup and authenticates new log, then requests addition to database ---
+#   ------------------------------------------------------------------------------------
     @classmethod
     def addLogPage(cls) : 
         #creates popup to enter log details
@@ -427,7 +467,10 @@ class UIManager :
         submitComponentButton = ttk.Button(addLogPopup, text="Add Operational Log", command=submit)
         submitComponentButton.pack(pady=15)
       
-
+#   ---------------------------------------------------------------------------
+#   ---                       Show Component View Page                      ---
+#   --- Displays all maintenance logs only relating to a specific component ---
+#   ---------------------------------------------------------------------------
     @classmethod
     def showComponentViewPage(cls, root) : 
         #creates container for component search:
