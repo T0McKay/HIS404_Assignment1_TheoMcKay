@@ -3,6 +3,7 @@ from tkinter import messagebox, ttk
 from functools import partial
 from ObjectUtilitiesClass import ObjectUtilities
 from ComponentClass import StatusT, Component
+from MaintenanceLogClass import MaintenanceLog
 from DatabaseManagerClass import DatabaseManager
 
 class UIManager : 
@@ -65,7 +66,7 @@ class UIManager :
 
         #root window title and dimensions (width x height)
         root.title("WSG Inventory Tool")
-        root.geometry('700x400')
+        root.geometry('700x300')
         root.resizable(False, False)
 
         menu = Menu(root)
@@ -75,7 +76,7 @@ class UIManager :
         inventoryMenu.add_command(label="View Components", command=UIManager.showInventoryPage)
         inventoryMenu.add_cascade(label="View MaintenanceLogs", command=UIManager.showMaintenanceLogs)
         inventoryMenu.add_command(label="Add Component", command=UIManager.addComponentPage)
-        inventoryMenu.add_command(label="Add Log Entry") # NEED TO ADD COMMAND
+        inventoryMenu.add_command(label="Add Log Entry", command=UIManager.addLogPage) 
 
         menu.add_cascade(label="Inventory", menu=inventoryMenu)
         menu.add_cascade(label="Notifications", command=root.destroy) # NEED TO ADD COMMAND
@@ -265,6 +266,168 @@ class UIManager :
         submitComponentButton = ttk.Button(addCompPopup, text="Add Component", command=submit)
         submitComponentButton.pack(pady=15)
         
+
+    @classmethod
+    def addLogPage(cls) : 
+        #creates popup to enter log details
+        addLogPopup = Toplevel()
+        addLogPopup.title("Add Operational Log")
+        addLogPopup.geometry("300x400")
+        addLogPopup.resizable(False, False)
+
+        #log ID label and input box - MAYBE SHOULD MAKE THIS AUTOMATED AND NOT ENTERED
+        logIDLabel = Label(addLogPopup, text="Log ID:")
+        logIDLabel.pack(pady=5)
+        logID = StringVar()
+        logIDEntry = Entry(addLogPopup, textvariable=logID)
+        logIDEntry.pack(pady=5)
+
+        def verifyUniqueLogID(userInput) :
+            try :
+                userInput = int(userInput)
+                if userInput > 0 :
+                    for log in range(ObjectUtilities.getNumLogs()) :
+                        if ObjectUtilities.getLog(log).getLogID() == userInput :
+                            return -1
+                    #has exited for statement:
+                    return userInput
+                else :
+                    return -1
+            except Exception :
+                return -1
+
+        #date performed label and input box - returns date as DD/MM/YYYY - need to add container for date
+
+        #container to hold date labels and dropdowns
+        dateContainer = Frame(addLogPopup)
+        dateContainer.pack(pady=5)
+
+        #creates container for labels
+        dateLabelContainer = Frame(dateContainer)
+        dateLabelContainer.pack(pady=5)
+
+        #creates container for dropdowns
+        dateSelectContainer = Frame(dateContainer)
+        dateSelectContainer.pack(pady=5)
+
+        dateLabel = Label(dateLabelContainer, text="Date Performed:")
+        dateDayLabel = Label(dateLabelContainer, text="Day:")
+        dateMonthLabel = Label(dateLabelContainer, text="Month:")
+        dateYearLabel = Label(dateLabelContainer, text="Year:")
+
+        #creates allowable days months and years and dropdown boxes
+        days = list(range(1, 32))
+        months = list(range(1, 13))
+        years = list(range(2025, 2035))
+
+        dayBox = ttk.Combobox(dateSelectContainer, values=days, width=5, state="readonly")
+        monthBox = ttk.Combobox(dateSelectContainer, values=months, width=5, state="readonly")
+        yearBox = ttk.Combobox(dateSelectContainer, values=years, width=7, state="readonly")
+
+        #packs all labels, dropdowns and containers
+        dateLabel.pack(pady=5)
+        dateDayLabel.pack(side="left", padx=5)
+        dateMonthLabel.pack(side="left", padx=5)
+        dateYearLabel.pack(side="left", padx=5)
+        dayBox.pack(side="left", padx=5)
+        monthBox.pack(side="left", padx=5)
+        yearBox.pack(side="left", padx=5)
+
+        #action label and input box
+        actionLabel = Label(addLogPopup, text="Action:")
+        actionLabel.pack(pady=5)
+        action = StringVar()
+        actionEntry = Entry(addLogPopup, textvariable=action)
+        actionEntry.pack(pady=5)
+
+        #component label and input box / drop down
+        compLabel = Label(addLogPopup, text="Component:")
+        compLabel.pack(pady=5)
+        components = {}
+        for comp in range(ObjectUtilities.getNumComponents()) : 
+            component = ObjectUtilities.getComponent(comp)
+            components[component.getComponentID()] = component
+        componentSelect = ttk.Combobox(addLogPopup, values=list(components.keys()), state="readonly")
+        componentSelect.pack()
+
+        #user performing action label and input box / drop down
+        userLabel = Label(addLogPopup, text="User:")
+        userLabel.pack(pady=5)
+        #pulls location names and ID from object utilities
+        users = {}
+        for usr in range(ObjectUtilities.getNumUsers()) : 
+            user = ObjectUtilities.getUser(usr)
+            users[user.getName()] = user
+        userSelect = ttk.Combobox(addLogPopup, values=list(users.keys()), state="readonly")
+        userSelect.pack()
+
+        #embedded submit function to be executed on button click
+        def submit() :
+            validSubmission = True
+            
+            #gets log ID
+            selectedLogID = verifyUniqueLogID(logIDEntry.get())
+            if selectedLogID == -1 :
+                validSubmission = False
+
+            #gets date using three day month and year drop downs
+            try :
+                selectedDay = dayBox.get()
+            except Exception :
+                validSubmission = False
+
+            #gets month from box
+            try :
+                selectedMonth = monthBox.get()
+            except Exception :
+                validSubmission = False
+
+            #gets year from box
+            try :
+                selectedYear = yearBox.get()
+            except Exception :                    
+                validSubmission = False
+
+            #forms whole date
+            selectedDatePerformed = str(selectedDay) + "/" + str(selectedMonth) + "/" + str(selectedYear)
+
+            #gets action performed 
+            enteredAction = actionEntry.get()
+            
+            #gets component from box
+            selectedComponentID = int(componentSelect.get())
+            try :
+                selectedComp = components[selectedComponentID]
+            except Exception :
+                validSubmission = False
+
+            #gets location from dropdown box
+            selectedUserName = userSelect.get()
+            try : 
+                selectedUser = users[selectedUserName]
+            except Exception : 
+                validSubmission = False
+
+            if validSubmission == True : 
+                #create component object
+                newLog = MaintenanceLog(logID=selectedLogID, datePerformed=selectedDatePerformed , action=enteredAction , userPerforming=selectedUser , component=selectedComp )
+
+                #update components array in object utilities
+                ObjectUtilities.addMaintenanceLog(newLog)
+
+                #write to database 
+                DatabaseManager.addLogToDatabase(newLog)
+                
+                messagebox.showinfo("Success!", "Action has been recorded.")
+                addLogPopup.destroy()
+            else :
+                messagebox.showerror("Invalid Log", "Please ensure ID is unique and all fields have been filled.")
+
+        #button to submit new component to be added
+        submitComponentButton = ttk.Button(addLogPopup, text="Add Operational Log", command=submit)
+        submitComponentButton.pack(pady=15)
+      
+
     @classmethod
     def showComponentViewPage(cls, root) : 
         #creates container for component search:

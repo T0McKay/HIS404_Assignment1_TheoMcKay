@@ -175,7 +175,7 @@ class DatabaseManager:
         #adds information to database for backup
         cursor.execute("""
             INSERT INTO MaintenanceLogs (LogID, DatePerformed, Action, ComponentID, UserID)
-            VALUES (?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?)
         """, (object.getLogID(), object.getDatePerformed(), object.getAction(), object.getComponent().getComponentID(), object.getUserPerforming().getUserID()))
 
         #commits and closes connection
