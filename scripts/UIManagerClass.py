@@ -391,21 +391,27 @@ class UIManager :
         def submit() :
             validSubmission = True
 
-            #gets date using three day month and year drop downs
+            #gets date through series of try catches to ensure day month and year have all been selected
             try :
                 selectedDay = dayBox.get()
+                if selectedDay == "" :
+                    validSubmission = False
             except Exception :
                 validSubmission = False
 
             #gets month from box
             try :
                 selectedMonth = monthBox.get()
+                if selectedMonth == "" :
+                    validSubmission = False
             except Exception :
                 validSubmission = False
 
             #gets year from box
             try :
                 selectedYear = yearBox.get()
+                if selectedYear == "" :
+                    validSubmission = False
             except Exception :                    
                 validSubmission = False
 
@@ -414,6 +420,8 @@ class UIManager :
 
             #gets action performed 
             enteredAction = actionEntry.get()
+            if enteredAction == "" :
+                    validSubmission = False
             
             #gets component from box
             selectedComponentID = int(componentSelect.get())
