@@ -4,6 +4,7 @@ from functools import partial
 from ObjectUtilitiesClass import ObjectUtilities
 from ComponentClass import StatusT, Component
 from MaintenanceLogClass import MaintenanceLog
+from LocationClass import Location, LocationT
 from DatabaseManagerClass import DatabaseManager
 
 #   -----------------------------------------------------------------------------
@@ -89,14 +90,19 @@ class UIManager :
         menu = Menu(root)
         root.config(menu=menu)
 
-        inventoryMenu = Menu(menu, tearoff=0)
-        inventoryMenu.add_command(label="View Components", command=UIManager.showInventoryPage)
-        inventoryMenu.add_command(label="Search Components", command=UIManager.showComponentViewPage)
-        inventoryMenu.add_cascade(label="View MaintenanceLogs", command=UIManager.showMaintenanceLogs)
-        inventoryMenu.add_command(label="Add Component", command=UIManager.addComponentPage)
-        inventoryMenu.add_command(label="Add Log Entry", command=UIManager.addLogPage) 
+        inventoryView = Menu(menu, tearoff=0)
+        inventoryView.add_command(label="View Components", command=UIManager.showInventoryPage)
+        inventoryView.add_command(label="Search Components", command=UIManager.showComponentViewPage)
+        inventoryView.add_cascade(label="View MaintenanceLogs", command=UIManager.showMaintenanceLogs)
 
-        menu.add_cascade(label="Inventory", menu=inventoryMenu)
+        inventoryAdd = Menu(menu, tearoff=0)
+        inventoryAdd.add_command(label="Add Component", command=UIManager.addComponentPage)
+        inventoryAdd.add_command(label="Add Log Entry", command=UIManager.addLogPage) 
+        inventoryAdd.add_command(label="Add Location", command=UIManager.addLocationPage)
+        inventoryAdd.add_command(label="Add User", command=root.destroy) #NEED TO ADD COMMAND
+
+        menu.add_cascade(label="Add", menu=inventoryAdd)
+        menu.add_cascade(label="Inventory View", menu=inventoryView)
         menu.add_cascade(label="Notifications", command=root.destroy) # NEED TO ADD COMMAND
         menu.add_cascade(label="Log Out", command=root.destroy)
 
@@ -527,3 +533,105 @@ class UIManager :
         #button to submit new component to be added
         submitComponentButton = ttk.Button(addLogPopup, text="Add Operational Log", command=submit)
         submitComponentButton.pack(pady=15)
+
+#   -----------------------------------------------------------------------------------------
+#   ---                                 Add Location Page                                 ---
+#   --- Provides popup and authenticates new location, then requests addition to database ---
+#   -----------------------------------------------------------------------------------------
+    @classmethod
+    def addLocationPage(cls) : 
+        #creates popup to enter component details
+        addLocationPopup = Toplevel()
+        addLocationPopup.title("Add Location")
+        addLocationPopup.geometry("300x500")
+        addLocationPopup.resizable(False, False)
+
+        #location ID label and input box
+        locationIDLabel = Label(addLocationPopup, text="Location ID:")
+        locationIDLabel.pack(pady=5)
+        locationID = StringVar()
+        locationIDEntry = Entry(addLocationPopup, textvariable=locationID)
+        locationIDEntry.pack(pady=5)
+
+        def verifyUniqueLocationID(userInput) :
+            try :
+                userInput = int(userInput)
+                if userInput > 0 :
+                    for loc in range(ObjectUtilities.getNumLocations()) :
+                        if ObjectUtilities.getLocation(loc).getLocationID() == userInput :
+                            return -1
+                    #has exited for statement:
+                    return userInput
+                else :
+                    return -1
+            except Exception :
+                return -1
+
+        #location name label and input box
+        locNameLabel = Label(addLocationPopup, text="Location Name:")
+        locNameLabel.pack(pady=5)
+        locName = StringVar()
+        locNameEntry = Entry(addLocationPopup, textvariable=locName) #needs to be turned upper case
+        locNameEntry.pack(pady=5)
+
+        #location type label and input box / drop down
+        locationTypeLabel = Label(addLocationPopup, text="Location Type:")
+        locationTypeLabel.pack(pady=5)
+        locTypeNames = []
+        for type in LocationT :
+            locTypeNames.append(type.name)
+        typeSelect = ttk.Combobox(addLocationPopup, values=locTypeNames, state="readonly")
+        typeSelect.pack()
+
+        #location postcode label and input box 
+        postcodeLabel = Label(addLocationPopup, text="Postcode:")
+        postcodeLabel.pack(pady=5)
+        postcode = StringVar()
+        postcodeEntry = Entry(addLocationPopup, textvariable=postcode) #needs to be turned upper case
+        postcodeEntry.pack(pady=5)
+
+        #embedded submit function to be executed on button click
+        def submit() :
+            validSubmission = True
+            
+            #gets location ID
+            selectedLocationID = verifyUniqueLocationID(locationIDEntry.get())
+            if selectedLocationID == -1 :
+                validSubmission = False
+
+            #gets component type
+            selectedLocationName = locNameEntry.get().upper()
+            if selectedLocationName == "" :
+                validSubmission = False
+            
+            #gets status from box
+            selectedLocationTypeName = typeSelect.get()
+            try :
+                selectedLocType = LocationT[selectedLocationTypeName]
+            except Exception :
+                validSubmission = False
+
+            #gets location from dropdown box
+            selectedLocationPostcode = postcodeEntry.get().upper()
+            if selectedLocationPostcode == "" :
+                validSubmission = False
+
+            if validSubmission == True : 
+                #create location object
+                newLocation = Location(locationID==selectedLocationID, name=selectedLocationName, locationType=selectedLocType, postcode=selectedLocationPostcode)
+
+                #update locations array in object utilities
+                ObjectUtilities.addLocation(newLocation)
+
+                #write to database 
+                DatabaseManager.addLocationToDatabase(newLocation)
+                
+                messagebox.showinfo("Success!", "Location has been added to inventory.")
+                addLocationPopup.destroy()
+            else :
+                messagebox.showerror("Invalid Location", "Please ensure ID is unique and quantities are positive integers.")
+
+        #button to submit new component to be added
+        submitLocationButton = ttk.Button(addLocationPopup, text="Add Location", command=submit)
+        submitLocationButton.pack(pady=15)
+    
