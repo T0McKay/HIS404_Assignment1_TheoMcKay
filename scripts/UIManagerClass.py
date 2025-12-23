@@ -91,6 +91,7 @@ class UIManager :
 
         inventoryMenu = Menu(menu, tearoff=0)
         inventoryMenu.add_command(label="View Components", command=UIManager.showInventoryPage)
+        inventoryMenu.add_command(label="Search Components", command=UIManager.showComponentViewPage)
         inventoryMenu.add_cascade(label="View MaintenanceLogs", command=UIManager.showMaintenanceLogs)
         inventoryMenu.add_command(label="Add Component", command=UIManager.addComponentPage)
         inventoryMenu.add_command(label="Add Log Entry", command=UIManager.addLogPage) 
@@ -147,32 +148,103 @@ class UIManager :
         #gets route window with standardised title and menu bar
         root = UIManager.createWindowMenu()
 
+        #maintenance logs title
+        titleLabel = Label(root, text="Maintenance Logs")
+        titleLabel.pack(pady=5)
+
+        #creates frame to holder the table and scroll bar
+        frame = UIManager.maintenanceLogTableFrame(root, None)
+        root.mainloop()
+
+    @classmethod
+    def maintenanceLogTableFrame(cls, root, selectedComponent) :
         #creates frame to holder the table and scroll bar
         frame = Frame(root)
         frame.pack(fill=BOTH, expand=True)
 
-        #maintenance logs title
-        titleLabel = Label(frame, text="Maintenance Logs")
-        titleLabel.pack(pady=5)
-
         #component table created with column headers
-        treeView = ttk.Treeview(root, columns=("LogID", "Component", "Action", "Date", "User"), show="headings")
+        treeView = ttk.Treeview(frame, columns=("LogID", "Component", "Action", "Date", "User"), show="headings")
 
         #prints headers
         for col in ("LogID", "Component", "Action", "Date", "User") :
             treeView.heading(col, text=col)
             treeView.column(col, anchor="center", stretch=True, width=100)
 
+        if selectedComponent == None :
+            pass #meaning show all
+
         #displays loaded components in table
         for maintenanceLog in range(ObjectUtilities.getNumLogs()) :
             log = ObjectUtilities.getLog(maintenanceLog)
-            treeView.insert("", "end", values=(str(log.getLogID()), str(log.getComponent().getComponentID()), str(log.getAction()), str(log.getDatePerformed()), log.getUserPerforming().getName()))
+            if selectedComponent == None :
+                treeView.insert("", "end", values=(str(log.getLogID()), str(log.getComponent().getComponentID()), str(log.getAction()), str(log.getDatePerformed()), log.getUserPerforming().getName()))
+            elif log.getComponent() == selectedComponent :
+                    treeView.insert("", "end", values=(str(log.getLogID()), str(log.getComponent().getComponentID()), str(log.getAction()), str(log.getDatePerformed()), log.getUserPerforming().getName()))
 
         #scrollbar 
         scrollbar = ttk.Scrollbar(frame, orient="vertical", command=treeView.yview)
         treeView.configure(yscrollcommand=scrollbar.set)
 
         treeView.pack(padx=5, pady=5, expand=True)
+
+        return frame
+
+#   ---------------------------------------------------------------------------
+#   ---                       Show Component View Page                      ---
+#   --- Displays all maintenance logs only relating to a specific component ---
+#   ---------------------------------------------------------------------------
+    @classmethod
+    def showComponentViewPage(cls) : 
+        root = UIManager.createWindowMenu()
+        currentLogFrame = None
+        
+        #creates container for component search:
+        searchFrame = Frame(root)
+        searchFrame.pack(expand=True)
+
+        #dropdown to select a component to view
+        compLabel = Label(searchFrame, text="Select Component ID:")
+        compLabel.pack(pady=5)
+
+        components = {}
+        for comp in range(ObjectUtilities.getNumComponents()) : 
+            component = ObjectUtilities.getComponent(comp)
+            components[component.getComponentID()] = component
+        componentSelect = ttk.Combobox(searchFrame, values=list(components.keys()), state="readonly")
+        componentSelect.pack()
+
+        def submit() :
+            #gets component from box
+            selectedComponentID = int(componentSelect.get())
+
+            validSubmission = True
+
+            try :
+                selectedComp = components[selectedComponentID]
+            except Exception :
+                validSubmission = False
+
+            if validSubmission :
+                nonlocal currentLogFrame
+
+                #creates table frame
+                logFrame = UIManager.maintenanceLogTableFrame(root=root, selectedComponent=selectedComp)
+
+                #destroys old table every button press so several components can be searched
+                if currentLogFrame is not None :
+                    currentLogFrame.destroy()
+
+                #creates new table
+                currentLogFrame = logFrame
+                currentLogFrame.pack(pady=5)
+
+            else :
+                messagebox.showerror("Invalid Entry", "Please select a component to search.")
+
+        #button to submit search
+        searchButton = Button(searchFrame, text="Search", command=submit)
+        searchButton.pack(pady=5)
+
         root.mainloop()
 
 #   ------------------------------------------------------------------------------------------
@@ -455,20 +527,3 @@ class UIManager :
         #button to submit new component to be added
         submitComponentButton = ttk.Button(addLogPopup, text="Add Operational Log", command=submit)
         submitComponentButton.pack(pady=15)
-      
-#   ---------------------------------------------------------------------------
-#   ---                       Show Component View Page                      ---
-#   --- Displays all maintenance logs only relating to a specific component ---
-#   ---------------------------------------------------------------------------
-    @classmethod
-    def showComponentViewPage(cls, root) : 
-        #creates container for component search:
-        frame = Frame(root)
-        frame.pack(expand=True)
-
-        #userID label and input box
-        userIDLabel = Label(frame, text="User ID:")
-        userIDLabel.pack(pady=5)
-        userID = StringVar()
-        userIDEntry = Entry(frame, textvariable=userID)
-        userIDEntry.pack(pady=5)
