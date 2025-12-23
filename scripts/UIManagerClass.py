@@ -618,7 +618,7 @@ class UIManager :
 
             if validSubmission == True : 
                 #create location object
-                newLocation = Location(locationID==selectedLocationID, name=selectedLocationName, locationType=selectedLocType, postcode=selectedLocationPostcode)
+                newLocation = Location(locationID=selectedLocationID, name=selectedLocationName, locationType=selectedLocType, postcode=selectedLocationPostcode)
 
                 #update locations array in object utilities
                 ObjectUtilities.addLocation(newLocation)
