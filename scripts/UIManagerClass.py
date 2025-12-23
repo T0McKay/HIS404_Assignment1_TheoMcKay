@@ -95,6 +95,7 @@ class UIManager :
         inventoryView.add_command(label="Search Components", command=UIManager.showComponentViewPage)
         inventoryView.add_cascade(label="View Maintenance Logs", command=UIManager.showMaintenanceLogs)
         inventoryView.add_cascade(label="View Locations", command=UIManager.showLocationsPage)
+        inventoryView.add_cascade(label="View Users", command=UIManager.showUsersPage)
 
         inventoryAdd = Menu(menu, tearoff=0)
         inventoryAdd.add_command(label="Add Component", command=UIManager.addComponentPage)
@@ -254,10 +255,10 @@ class UIManager :
 
         root.mainloop()
 
-#   ----------------------------------------------------------
-#   ---                 Show Locations Page                ---
-#   --- Displays components currently loaded in at runtime ---
-#   ----------------------------------------------------------
+#   ---------------------------------------------------------
+#   ---                Show Locations Page                ---
+#   --- Displays locations currently loaded in at runtime ---
+#   ---------------------------------------------------------
     @classmethod
     def showLocationsPage(cls) :
         #gets route window with standardised title and menu bar
@@ -271,7 +272,7 @@ class UIManager :
         locationsLabel = Label(frame, text="Locations")
         locationsLabel.pack(pady=5)
 
-        #component table created with column headers
+        #location table created with column headers
         treeView = ttk.Treeview(root, columns=("LocationID", "Name", "Type", "Postcode"), show="headings")
 
         #prints headers
@@ -279,10 +280,52 @@ class UIManager :
             treeView.heading(col, text=col)
             treeView.column(col, anchor="center", stretch=True, width=100)
 
-        #displays loaded components in table
+        #displays loaded locations in table
         for location in range(ObjectUtilities.getNumLocations()) :
             loc = ObjectUtilities.getLocation(location)
             treeView.insert("", "end", values=(str(loc.getLocationID()), str(loc.getName()), loc.getLocationType().name, loc.getPostcode()))
+
+        #scrollbar 
+        scrollbar = ttk.Scrollbar(frame, orient="vertical", command=treeView.yview)
+        treeView.configure(yscrollcommand=scrollbar.set)
+
+        treeView.pack(padx=5, pady=5, expand=True)
+        root.mainloop()
+
+#   -----------------------------------------------------
+#   ---                Show Users Page                ---
+#   --- Displays users currently loaded in at runtime ---
+#   -----------------------------------------------------
+    @classmethod
+    def showUsersPage(cls) :
+        #gets route window with standardised title and menu bar
+        root = UIManager.createWindowMenu()
+
+        #creates frame to holder the table and scroll bar
+        frame = Frame(root)
+        frame.pack(fill=BOTH, expand=True)
+
+        #title label
+        usersLabel = Label(frame, text="Users")
+        usersLabel.pack(pady=5)
+
+        #user table created with column headers
+        treeView = ttk.Treeview(root, columns=("UserID", "Name", "Role"), show="headings")
+
+        #prints headers
+        for col in ("UserID", "Name", "Role") :
+            treeView.heading(col, text=col)
+            treeView.column(col, anchor="center", stretch=True, width=100)
+
+        #displays loaded users in table
+        for user in range(ObjectUtilities.getNumUsers()) :
+            usr = ObjectUtilities.getUser(user)
+            if usr.getIsManager() :
+                role = "MANAGER"
+            else :
+                role = "ENGINEER"
+
+            treeView.insert("", "end", values=(str(usr.getUserID()), usr.getName(), role))
 
         #scrollbar 
         scrollbar = ttk.Scrollbar(frame, orient="vertical", command=treeView.yview)
