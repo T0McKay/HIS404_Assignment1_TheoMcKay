@@ -134,8 +134,8 @@ class ObjectUtilities :
                     ObjectUtilities.loggedInAs = user 
                     ObjectUtilities.loggedIn = True
                     return True
-                else :
-                    return False
+            #exits for loop so return false as user not found
+            return False
         except ValueError :
             return False
         

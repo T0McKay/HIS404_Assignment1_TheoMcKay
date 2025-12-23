@@ -812,7 +812,7 @@ class UIManager :
 
             if validSubmission == True : 
                 #create user object
-                newUser = Engineer(userID=selecteduserID, name=selectedUserName, hashedPassword= hashedPassword, isManager=selectedIsManager)
+                newUser = Engineer(userID=selecteduserID, name=selectedUserName, hashedPassword=hashedPassword, isManager=selectedIsManager)
 
                 #update users array in object utilities
                 ObjectUtilities.addUser(newUser)
