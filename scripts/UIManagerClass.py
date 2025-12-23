@@ -93,7 +93,8 @@ class UIManager :
         inventoryView = Menu(menu, tearoff=0)
         inventoryView.add_command(label="View Components", command=UIManager.showInventoryPage)
         inventoryView.add_command(label="Search Components", command=UIManager.showComponentViewPage)
-        inventoryView.add_cascade(label="View MaintenanceLogs", command=UIManager.showMaintenanceLogs)
+        inventoryView.add_cascade(label="View Maintenance Logs", command=UIManager.showMaintenanceLogs)
+        inventoryView.add_cascade(label="View Locations", command=UIManager.showLocationsPage)
 
         inventoryAdd = Menu(menu, tearoff=0)
         inventoryAdd.add_command(label="Add Component", command=UIManager.addComponentPage)
@@ -251,6 +252,43 @@ class UIManager :
         searchButton = Button(searchFrame, text="Search", command=submit)
         searchButton.pack(pady=5)
 
+        root.mainloop()
+
+#   ----------------------------------------------------------
+#   ---                 Show Locations Page                ---
+#   --- Displays components currently loaded in at runtime ---
+#   ----------------------------------------------------------
+    @classmethod
+    def showLocationsPage(cls) :
+        #gets route window with standardised title and menu bar
+        root = UIManager.createWindowMenu()
+
+        #creates frame to holder the table and scroll bar
+        frame = Frame(root)
+        frame.pack(fill=BOTH, expand=True)
+
+        #title label
+        locationsLabel = Label(frame, text="Locations")
+        locationsLabel.pack(pady=5)
+
+        #component table created with column headers
+        treeView = ttk.Treeview(root, columns=("LocationID", "Name", "Type", "Postcode"), show="headings")
+
+        #prints headers
+        for col in ("LocationID", "Name", "Type", "Postcode") :
+            treeView.heading(col, text=col)
+            treeView.column(col, anchor="center", stretch=True, width=100)
+
+        #displays loaded components in table
+        for location in range(ObjectUtilities.getNumLocations()) :
+            loc = ObjectUtilities.getLocation(location)
+            treeView.insert("", "end", values=(str(loc.getLocationID()), str(loc.getName()), loc.getLocationType().name, loc.getPostcode()))
+
+        #scrollbar 
+        scrollbar = ttk.Scrollbar(frame, orient="vertical", command=treeView.yview)
+        treeView.configure(yscrollcommand=scrollbar.set)
+
+        treeView.pack(padx=5, pady=5, expand=True)
         root.mainloop()
 
 #   ------------------------------------------------------------------------------------------
