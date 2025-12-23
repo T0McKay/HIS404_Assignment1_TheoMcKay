@@ -1,6 +1,9 @@
 import bcrypt
+from datetime import datetime
 from EngineerClass import Engineer
+from MaintenanceLogClass import MaintenanceLog
 from ComponentClass import Component
+from DatabaseManagerClass import DatabaseManager
 
 #---------------------------------------------------------------------------------
 # The Object Tracker class is intended to be keep track of loaded objects
@@ -29,6 +32,7 @@ class ObjectUtilities :
     def setLoggedIn(cls, isLoggedIn) :
         cls.loggedIn = isLoggedIn
 
+    @classmethod
     def getLoggedInAs(cls) :
         return cls.loggedInAs
     
@@ -76,10 +80,33 @@ class ObjectUtilities :
         for comp in range(ObjectUtilities.getNumComponents()) :
             component : Component = ObjectUtilities.getComponent(comp)
             if component.getComponentID() == int(compID) :
-                component.updateComponent(compType=compType, quantity=quantity, status=status, location=location)
-                #returns true to say it has updated component successfully
-                return component
-        #if exits for loop then not found so needs to return false
+                
+                #add operational log to compare and record changes?
+                operationalLogMessage = ""
+
+                if component.getComponentType() != compType :
+                    operationalLogMessage += "Type changed. "
+                
+                if component.getQuantity() > quantity :
+                    operationalLogMessage += "Quantity decreased. "
+                elif component.getQuantity() < quantity :
+                    operationalLogMessage += "Quantity increased. "
+
+                if component.getStatus() != status :
+                    operationalLogMessage += "Status changed. "
+
+                if component.getLocation() != location :
+                    operationalLogMessage += "Location changed."
+
+                if operationalLogMessage != "" : #meaning no changes have been made
+                    component.updateComponent(compType=compType, quantity=quantity, status=status, location=location)
+
+                    ObjectUtilities.createAutomatedOperationalLog(operationalLogMessage, component=component)
+
+                    #returns true to say it has updated component successfully
+                    return component
+                
+        #if exits for loop then either component attributes never changed or component was not found so needs to return false
         return None
 
 #   -------------------------------------------------
@@ -119,6 +146,13 @@ class ObjectUtilities :
     @classmethod
     def getNextLogID(cls) :
         return cls.maintenanceLogs[ObjectUtilities.getNumLogs() -1].getLogID() + 1
+
+    @classmethod
+    def createAutomatedOperationalLog(cls, actionCompleted, component) :
+        todaysDate = datetime.today().strftime("%d/%m/%Y")
+        newLog = MaintenanceLog(logID=ObjectUtilities.getNextLogID(), datePerformed=todaysDate, action=actionCompleted, component=component, userPerforming=ObjectUtilities.getLoggedInAs())
+        ObjectUtilities.addMaintenanceLog(newLog)
+        DatabaseManager.addLogToDatabase(newLog)
 
 #   ----------------------------------------------------------
 #   ---                Hash String Method                  ---
