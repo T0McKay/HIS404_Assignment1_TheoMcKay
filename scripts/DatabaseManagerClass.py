@@ -1,6 +1,6 @@
 import sqlite3
 from EngineerClass import Engineer
-from LocationClass import Location
+from LocationClass import Location, LocationT
 from MaintenanceLogClass import MaintenanceLog
 from ComponentClass import Component, StatusT
 from ObjectUtilitiesClass import ObjectUtilities
@@ -44,8 +44,12 @@ class DatabaseManager:
         output = cursor.fetchall()
 
         for row in output:
+            #gets type and converts to LocationT enum
+            locType = row["Type"]
+            locationType = LocationT[locType]
+
             #row is an sqliteRow so can access using column names
-            newLocation = Location(locationID=row["LocationID"], name=row["Name"], locationType=row["Type"], postcode=row["Postcode"])
+            newLocation = Location(locationID=row["LocationID"], name=row["Name"], locationType=locationType, postcode=row["Postcode"])
             ObjectUtilities.addLocation(newLocation)
 
 
@@ -147,7 +151,7 @@ class DatabaseManager:
         cursor.execute("""
             INSERT INTO Locations (LocationID, Name, Type, Postcode)
             VALUES (?, ?, ?, ?)
-        """, (object.getLocationID(), object.getName(), object.getLocationType(), object.getPostcode()))
+        """, (object.getLocationID(), object.getName(), object.getLocationType().name, object.getPostcode()))
 
         #commits and closes connection
         conn.commit()
