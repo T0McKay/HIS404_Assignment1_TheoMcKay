@@ -190,3 +190,26 @@ class DatabaseManager:
         #commits and closes connection
         conn.commit()
         conn.close()
+
+#   -------------------------------------------------------------------
+#   ---                   Update Objects Method                     ---
+#   --- Takes object, updates DB using SQL, commits and disconnects ---
+#   -------------------------------------------------------------------
+
+@classmethod
+def updateComponentInDatabase(cls, component : Component) :
+    #connecting to sqlite database
+        conn = DatabaseManager.connect()
+        #cursor object
+        cursor = conn.cursor()
+
+        #adds information to database for backup
+        cursor.execute("""
+            UPDATE Components
+            SET Type = ?, Quantity = ?, Status = ?, LocationID = ?
+            WHERE ComponentID = ?
+        """, (component.getComponentType(), component.getQuantity(), component.getStatus().name, component.getLocation().getLocationID()), component.getComponentID())
+
+        #commits and closes connection
+        conn.commit()
+        conn.close()
