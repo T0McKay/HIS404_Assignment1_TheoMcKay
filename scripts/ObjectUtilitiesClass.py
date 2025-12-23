@@ -1,5 +1,6 @@
 import bcrypt
 from EngineerClass import Engineer
+from ComponentClass import Component
 
 #---------------------------------------------------------------------------------
 # The Object Tracker class is intended to be keep track of loaded objects
@@ -69,7 +70,18 @@ class ObjectUtilities :
     @classmethod
     def getComponent(cls, index) :
         return cls.components[index]
-    
+
+    @classmethod
+    def successfulComponentUpdate(cls, compID, compType, quantity, status, location) :
+        for comp in range(ObjectUtilities.getNumComponents()) :
+            component : Component = ObjectUtilities.getComponent(comp)
+            if component.getComponentID() == int(compID) :
+                component.updateComponent(compType=compType, quantity=quantity, status=status, location=location)
+                #returns true to say it has updated component successfully
+                return component
+        #if exits for loop then not found so needs to return false
+        return None
+
 #   -------------------------------------------------
 #   ---             User Management               ---
 #   --- Getters (for a user AND num of) + setters ---

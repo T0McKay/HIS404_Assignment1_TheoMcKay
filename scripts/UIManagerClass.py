@@ -104,8 +104,12 @@ class UIManager :
         inventoryAdd.add_command(label="Add Location", command=UIManager.addLocationPage)
         inventoryAdd.add_command(label="Add User", command=UIManager.addUserPage)
 
-        menu.add_cascade(label="Add", menu=inventoryAdd)
+        inventoryUpdate = Menu(menu, tearoff=0)
+        inventoryUpdate.add_command(label="Update Component", command=UIManager.updateComponentPage)
+
         menu.add_cascade(label="Inventory View", menu=inventoryView)
+        menu.add_cascade(label="Add", menu=inventoryAdd)
+        menu.add_cascade(label="Update", menu=inventoryUpdate)
         menu.add_cascade(label="Notifications", command=root.destroy) # NEED TO ADD COMMAND
         menu.add_cascade(label="Log Out", command=root.destroy)
 
@@ -828,3 +832,125 @@ class UIManager :
         #button to submit new component to be added
         submitUserButton = ttk.Button(addUserPopup, text="Add User", command=submit)
         submitUserButton.pack(pady=15)
+
+#   ---------------------------------------------------------------------------------
+#   ---                            Update Component Page                          ---
+#   --- Provides popup and allows user to change the quantity, status or location ---
+#   ---------------------------------------------------------------------------------
+    @classmethod
+    def updateComponentPage(cls) :
+        #take in what needs changing - can have empty options
+        #update component stored in components object utilities array
+        #call update database method
+        
+        updateCompPopup = Toplevel()
+        updateCompPopup.title("Update Component")
+        updateCompPopup.geometry("300x400")
+        updateCompPopup.resizable(False, False)
+
+        #component ID dropdown to select component to be changed
+        compIDLabel = Label(updateCompPopup, text="Component ID:")
+        compIDLabel.pack(pady=5)
+        #pulls component IDs and components from object utilities
+        components = {}
+        for comp in range(ObjectUtilities.getNumComponents()) : 
+            component = ObjectUtilities.getComponent(comp)
+            components[component.getComponentID()] = component
+        componentSelect = ttk.Combobox(updateCompPopup, values=list(components.keys()), state="readonly")
+        componentSelect.pack()
+
+        #component type label and input box
+        compTypeLabel = Label(updateCompPopup, text="Component Type:")
+        compTypeLabel.pack(pady=5)
+        compType = StringVar()
+        compTypeEntry = Entry(updateCompPopup, textvariable=compType)
+        compTypeEntry.pack(pady=5)
+
+        #quantity label and input box
+        compQuantityLabel = Label(updateCompPopup, text="Component Quantity:")
+        compQuantityLabel.pack(pady=5)
+        compQuantity = StringVar()
+        compQuantityEntry = Entry(updateCompPopup, textvariable=compQuantity)
+        compQuantityEntry.pack(pady=5)
+
+        #method to verify quantity:
+        def verifyQuantity(userInput) :
+            try :
+                toReturn = int(userInput)
+                if toReturn > 0 :
+                    return toReturn
+                else :
+                    return -1
+            except Exception :
+                return -1
+
+        #status label and input box / drop down
+        compStatusLabel = Label(updateCompPopup, text="Component Status:")
+        compStatusLabel.pack(pady=5)
+        statusNames = []
+        for status in StatusT :
+            statusNames.append(status.name)
+        statusSelect = ttk.Combobox(updateCompPopup, values=statusNames, state="readonly")
+        statusSelect.pack()
+
+        #location label and input box / drop down
+        compLocationLabel = Label(updateCompPopup, text="Component Location:")
+        compLocationLabel.pack(pady=5)
+        #pulls location names and ID from object utilities
+        locations = {}
+        for loc in range(ObjectUtilities.getNumLocations()) : 
+            location = ObjectUtilities.getLocation(loc)
+            locations[location.getName()] = location
+        locationSelect = ttk.Combobox(updateCompPopup, values=list(locations.keys()), state="readonly")
+        locationSelect.pack()
+
+        #embedded submit function to be executed on button click
+        def submit() :
+            validSubmission = True
+            
+            #gets component ID
+            selectedComponentID = componentSelect.get()
+
+            #gets component type
+            selectedComponentType = compTypeEntry.get()
+
+            #gets quantity of components
+            selectedQuantity = verifyQuantity(compQuantityEntry.get())
+            if selectedQuantity == -1 :
+                validSubmission = False
+            
+            #gets status from box
+            selectedStatusName = statusSelect.get()
+            try :
+                selectedStatus = StatusT[selectedStatusName]
+            except Exception :
+                validSubmission = False
+
+            #gets location from dropdown box
+            selectedLocationName = locationSelect.get()
+            try : 
+                selectedLocation = locations[selectedLocationName]
+            except Exception : 
+                validSubmission = False
+
+            if validSubmission == True : 
+                #updates component:
+                updatedComponent = ObjectUtilities.successfulComponentUpdate(selectedComponentID, selectedComponentType, selectedQuantity, selectedStatus, selectedLocation)
+
+                if updatedComponent != None :
+                    #write to database 
+                    DatabaseManager.updateComponentInDatabase(updatedComponent)
+                    
+                    messagebox.showinfo("Success!", "Component has been updated.")
+                    updateCompPopup.destroy()
+                else :
+                    messagebox.showerror("Update Error", "There was an error updating this component.")
+            else :
+                messagebox.showerror("Invalid Update Details", "Please ensure ID is unique, quantities are positive integers and all fields are full.")
+
+        #button to submit new component to be added
+        submitComponentButton = ttk.Button(updateCompPopup, text="Update Component", command=submit)
+        submitComponentButton.pack(pady=15)
+
+
+        

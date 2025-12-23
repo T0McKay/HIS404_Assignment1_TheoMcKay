@@ -39,3 +39,9 @@ class Component:
     
     def getLocation(self) :
         return self.location
+    
+    def updateComponent(self, compType, quantity, status, location) :
+        self.componentType = compType
+        self.quantity = quantity
+        self.status = status
+        self.location = location
