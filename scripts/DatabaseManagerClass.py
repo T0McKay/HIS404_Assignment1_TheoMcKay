@@ -114,7 +114,7 @@ class DatabaseManager:
 
 #   -------------------------------------------------------------------------
 #   ---                       Add Objects Method                          ---
-#   --- Takes object, inserts using SWL, commits addition and disconnects ---
+#   --- Takes object, inserts using SQL, commits addition and disconnects ---
 #   -------------------------------------------------------------------------
 
     @classmethod

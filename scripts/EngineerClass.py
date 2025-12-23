@@ -1,6 +1,5 @@
 #--------------------------------------------------------------------------------------------------
 # Engineer class is a template for objects storing information about users in the engineering role
-# It is the superclass of the Manager class
 #--------------------------------------------------------------------------------------------------
 
 class Engineer:
