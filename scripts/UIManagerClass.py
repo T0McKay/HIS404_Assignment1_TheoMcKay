@@ -5,6 +5,7 @@ from ObjectUtilitiesClass import ObjectUtilities
 from ComponentClass import StatusT, Component
 from MaintenanceLogClass import MaintenanceLog
 from LocationClass import Location, LocationT
+from EngineerClass import Engineer
 from DatabaseManagerClass import DatabaseManager
 
 #   -----------------------------------------------------------------------------
@@ -101,7 +102,7 @@ class UIManager :
         inventoryAdd.add_command(label="Add Component", command=UIManager.addComponentPage)
         inventoryAdd.add_command(label="Add Log Entry", command=UIManager.addLogPage) 
         inventoryAdd.add_command(label="Add Location", command=UIManager.addLocationPage)
-        inventoryAdd.add_command(label="Add User", command=root.destroy) #NEED TO ADD COMMAND
+        inventoryAdd.add_command(label="Add User", command=UIManager.addUserPage)
 
         menu.add_cascade(label="Add", menu=inventoryAdd)
         menu.add_cascade(label="Inventory View", menu=inventoryView)
@@ -716,3 +717,114 @@ class UIManager :
         submitLocationButton = ttk.Button(addLocationPopup, text="Add Location", command=submit)
         submitLocationButton.pack(pady=15)
     
+#   -----------------------------------------------------------------------------------------
+#   ---                                 Add User Page                                 ---
+#   --- Provides popup and authenticates new location, then requests addition to database ---
+#   -----------------------------------------------------------------------------------------
+    @classmethod
+    def addUserPage(cls) : 
+        #creates popup to enter component details
+        addUserPopup = Toplevel()
+        addUserPopup.title("Add User")
+        addUserPopup.geometry("300x500")
+        addUserPopup.resizable(False, False)
+
+        #user ID label and input box
+        userIDLabel = Label(addUserPopup, text="User ID:")
+        userIDLabel.pack(pady=5)
+        userID = StringVar()
+        userIDEntry = Entry(addUserPopup, textvariable=userID)
+        userIDEntry.pack(pady=5)
+
+        def verifyUniqueUserID(userInput) :
+            try :
+                userInput = int(userInput)
+                if userInput > 0 :
+                    for user in range(ObjectUtilities.getNumUsers()) :
+                        if ObjectUtilities.getUser(user).getUserID() == userInput :
+                            return -1
+                    #has exited for statement:
+                    return userInput
+                else :
+                    return -1
+            except Exception :
+                return -1
+
+        #user name label and input box
+        userNameLabel = Label(addUserPopup, text="User Name:")
+        userNameLabel.pack(pady=5)
+        userName = StringVar()
+        userNameEntry = Entry(addUserPopup, textvariable=userName)
+        userNameEntry.pack(pady=5)
+
+        #container to hold two password entry boxes
+        passwordFrame = Frame(addUserPopup)
+        passwordFrame.pack(pady=5)
+
+        password1Label = Label(passwordFrame, text="Password:")
+        password1Label.pack(pady=5)
+        password1 = StringVar()
+        passwordEntry1 = Entry(passwordFrame, textvariable=password1, show="*")
+        passwordEntry1.pack(pady=5)
+
+        password2Label = Label(passwordFrame, text="Re-enter Password:")
+        password2Label.pack(pady=5)
+        password2 = StringVar()
+        passwordEntry2 = Entry(passwordFrame, textvariable=password2, show="*")
+        passwordEntry2.pack(pady=5)
+
+        #user role label and input box 
+        roleLabel = Label(addUserPopup, text="Role:")
+        roleLabel.pack(pady=5)
+        roles = {"ENGINEER" : False, "MANAGER" : True}
+        roleSelect = ttk.Combobox(addUserPopup, values=list(roles.keys()), state="readonly")
+        roleSelect.pack()
+
+        #embedded submit function to be executed on button click
+        def submit() :
+            validSubmission = True
+            
+            #gets user ID
+            selecteduserID = verifyUniqueUserID(userIDEntry.get())
+            if selecteduserID == -1 :
+                validSubmission = False
+
+            #gets component type
+            selectedUserName = userNameEntry.get()
+            if selectedUserName == "" :
+                validSubmission = False
+            
+            #gets password from box
+            firstEnteredPassword = passwordEntry1.get()
+            secondEnteredPassword = passwordEntry2.get()
+
+            if firstEnteredPassword != "" and firstEnteredPassword != secondEnteredPassword :
+                validSubmission = False
+            else :
+                hashedPassword = ObjectUtilities.hashString(firstEnteredPassword)
+
+            #gets role from dropdown box
+            selectedRole = roleSelect.get()
+            try :
+                selectedIsManager = roles[selectedRole]
+            except Exception : 
+                validSubmission = False
+
+            if validSubmission == True : 
+                #create user object
+                newUser = Engineer(userID=selecteduserID, name=selectedUserName, hashedPassword= hashedPassword, isManager=selectedIsManager)
+
+                #update users array in object utilities
+                ObjectUtilities.addUser(newUser)
+
+                #write to database 
+                DatabaseManager.addUserToDatabase(newUser)
+                
+                messagebox.showinfo("Success!", "User has been added to inventory system.")
+                addUserPopup.destroy()
+            else :
+                messagebox.showerror("Invalid User", "Please ensure ID is unique, entered passwords are the same and all fields are filled in.")
+
+        #button to submit new component to be added
+        submitUserButton = ttk.Button(addUserPopup, text="Add User", command=submit)
+        submitUserButton.pack(pady=15)
