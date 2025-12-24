@@ -91,25 +91,38 @@ class UIManager :
         menu = Menu(root)
         root.config(menu=menu)
 
-        inventoryView = Menu(menu, tearoff=0)
-        inventoryView.add_command(label="View Components", command=UIManager.showInventoryPage)
-        inventoryView.add_command(label="Search Components", command=UIManager.showComponentViewPage)
-        inventoryView.add_cascade(label="View Maintenance Logs", command=UIManager.showMaintenanceLogs)
-        inventoryView.add_cascade(label="View Locations", command=UIManager.showLocationsPage)
-        inventoryView.add_cascade(label="View Users", command=UIManager.showUsersPage)
+        # Components:
+        componentsMenu = Menu(menu, tearoff=0)
+        componentsMenu.add_command(label="View Components", command=UIManager.showInventoryPage)
+        componentsMenu.add_command(label="Add Component", command=UIManager.addComponentPage)
+        componentsMenu.add_command(label="Search Components", command=UIManager.showComponentViewPage)
+        componentsMenu.add_command(label="Update Component", command=UIManager.updateComponentPage)
 
-        inventoryAdd = Menu(menu, tearoff=0)
-        inventoryAdd.add_command(label="Add Component", command=UIManager.addComponentPage)
-        inventoryAdd.add_command(label="Add Log Entry", command=UIManager.addLogPage) 
-        inventoryAdd.add_command(label="Add Location", command=UIManager.addLocationPage)
-        inventoryAdd.add_command(label="Add User", command=UIManager.addUserPage)
+        # Maintenance logs:
+        logMenu = Menu(menu, tearoff=0)
+        logMenu.add_command(label="View Maintenance Logs", command=UIManager.showMaintenanceLogs)
+        logMenu.add_command(label="Add Log Entry", command=UIManager.addLogPage) 
 
-        inventoryUpdate = Menu(menu, tearoff=0)
-        inventoryUpdate.add_command(label="Update Component", command=UIManager.updateComponentPage)
+        # Locations:
+        locationMenu = Menu(menu, tearoff=0)
+        locationMenu.add_command(label="View Locations", command=UIManager.showLocationsPage)
+        
+        # Manager view:
+        managerMenu = Menu(menu, tearoff=0)
+        managerMenu.add_command(label="View Users", command=UIManager.showUsersPage)
+        managerMenu.add_command(label="Add User", command=UIManager.addUserPage)
+        managerMenu.add_command(label="Add Location", command=UIManager.addLocationPage)
 
-        menu.add_cascade(label="Inventory View", menu=inventoryView)
-        menu.add_cascade(label="Add", menu=inventoryAdd)
-        menu.add_cascade(label="Update", menu=inventoryUpdate)
+
+        menu.add_cascade(label="Components", menu=componentsMenu)
+        menu.add_cascade(label="Maintenance Logs", menu=logMenu)
+        menu.add_cascade(label="Locations", menu=locationMenu)
+
+        #only add manager menu to a user logged in with manager role
+        isUserManager = ObjectUtilities.getLoggedInAs().getIsManager()
+        if isUserManager :
+            menu.add_cascade(label="Manager View", menu=managerMenu)
+
         menu.add_cascade(label="Notifications", command=root.destroy) # NEED TO ADD COMMAND
         menu.add_cascade(label="Log Out", command=root.destroy)
 
@@ -722,7 +735,7 @@ class UIManager :
         submitLocationButton.pack(pady=15)
     
 #   -----------------------------------------------------------------------------------------
-#   ---                                 Add User Page                                 ---
+#   ---                                   Add User Page                                   ---
 #   --- Provides popup and authenticates new location, then requests addition to database ---
 #   -----------------------------------------------------------------------------------------
     @classmethod
