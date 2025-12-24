@@ -6,7 +6,9 @@ from ComponentClass import StatusT, Component
 from MaintenanceLogClass import MaintenanceLog
 from LocationClass import Location, LocationT
 from EngineerClass import Engineer
+from NotificationClass import Notification
 from DatabaseManagerClass import DatabaseManager
+from NotificationManagerClass import NotificationManager
 
 #   -----------------------------------------------------------------------------
 #   ---                          UI Manager Class                             ---
@@ -123,7 +125,7 @@ class UIManager :
         if isUserManager :
             menu.add_cascade(label="Manager View", menu=managerMenu)
 
-        menu.add_cascade(label="Notifications", command=root.destroy) # NEED TO ADD COMMAND
+        menu.add_cascade(label="Notifications", command=UIManager.notificationsPage) # NEED TO ADD COMMAND
         menu.add_cascade(label="Log Out", command=root.destroy)
 
         return root
@@ -965,5 +967,43 @@ class UIManager :
         submitComponentButton = ttk.Button(updateCompPopup, text="Update Component", command=submit)
         submitComponentButton.pack(pady=15)
 
+#   ---------------------------------------------------------
+#   ---                Notifications Page                 ---
+#   --- Displays all messages of low component quantities ---
+#   ---------------------------------------------------------
+    @classmethod
+    def notificationsPage(cls) :
+        #gets route window with standardised title and menu bar
+        root = UIManager.createWindowMenu()
 
-        
+        #creates frame to holder the table and scroll bar
+        frame = Frame(root)
+        frame.config(width=500)
+        frame.pack(fill=BOTH, expand=True)
+
+        #title label
+        notifLabel = Label(frame, text="Notifications")
+        notifLabel.pack(pady=5)
+
+        #notification table created with column headers
+        treeView = ttk.Treeview(root, columns=("NotificationID", "ComponentID", "Message"), show="headings")
+
+        #prints headers
+        for col in ("NotificationID", "ComponentID", "Message") :
+            treeView.heading(col, text=col)
+            treeView.column(col, anchor="center", stretch=True)
+
+        #updates notifications
+        NotificationManager.updateNotifications()
+
+        #displays loaded locations in table
+        for notification in range(NotificationManager.getNumNotifs()) :
+            notif = NotificationManager.getNotification(notification)
+            treeView.insert("", "end", values=(str(notif.getNotifID()), str(notif.getComponent().getComponentID()), str(notif.getMessage())))
+
+        #scrollbar 
+        scrollbar = ttk.Scrollbar(frame, orient="vertical", command=treeView.yview)
+        treeView.configure(yscrollcommand=scrollbar.set)
+
+        treeView.pack(padx=5, pady=5, expand=True)
+        root.mainloop()
