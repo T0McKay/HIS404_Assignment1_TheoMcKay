@@ -1,8 +1,9 @@
 import bcrypt
 from datetime import datetime
 from EngineerClass import Engineer
+from LocationClass import Location
 from MaintenanceLogClass import MaintenanceLog
-from ComponentClass import Component
+from ComponentClass import Component, StatusT
 from DatabaseManagerClass import DatabaseManager
 
 #---------------------------------------------------------------------------------
@@ -11,10 +12,10 @@ from DatabaseManagerClass import DatabaseManager
 #---------------------------------------------------------------------------------
 
 class ObjectUtilities :
-    locations = []
-    components = []
-    maintenanceLogs = []
-    users = []
+    locations : list[Location] = []
+    components : list[Component] = []
+    maintenanceLogs : list[MaintenanceLog] = []
+    users : list[Engineer] = []
 
     loggedIn = False
     loggedInAs : Engineer
@@ -47,7 +48,7 @@ class ObjectUtilities :
 #   -----------------------------------------------------
 
     @classmethod
-    def addLocation(cls, location) :
+    def addLocation(cls, location : Location) :
         cls.locations.append(location)
 
     @classmethod
@@ -55,7 +56,7 @@ class ObjectUtilities :
         return len(cls.locations)
     
     @classmethod
-    def getLocation(cls, index) :
+    def getLocation(cls, index : int) :
         return cls.locations[index]
 
 #   ------------------------------------------------------
@@ -64,7 +65,7 @@ class ObjectUtilities :
 #   ------------------------------------------------------
 
     @classmethod
-    def addComponent(cls, comp) :
+    def addComponent(cls, comp : Component) :
         cls.components.append(comp)
 
     @classmethod
@@ -72,11 +73,11 @@ class ObjectUtilities :
         return len(cls.components)
     
     @classmethod
-    def getComponent(cls, index) :
+    def getComponent(cls, index : int) :
         return cls.components[index]
 
     @classmethod
-    def successfulComponentUpdate(cls, compID, compType, quantity, status, location) :
+    def successfulComponentUpdate(cls, compID : int, compType : str, quantity : int, status : StatusT, location : Location) :
         for comp in range(ObjectUtilities.getNumComponents()) :
             component : Component = ObjectUtilities.getComponent(comp)
             if component.getComponentID() == int(compID) :
@@ -115,7 +116,7 @@ class ObjectUtilities :
 #   -------------------------------------------------
 
     @classmethod
-    def addUser(cls, user) :
+    def addUser(cls, user : Engineer) :
         cls.users.append(user)
     
     @classmethod
@@ -123,7 +124,7 @@ class ObjectUtilities :
         return len(ObjectUtilities.users)
     
     @classmethod
-    def getUser(cls, index) :
+    def getUser(cls, index : int) :
         return ObjectUtilities.users[index]
 
 #   ------------------------------------------------
@@ -132,7 +133,7 @@ class ObjectUtilities :
 #   ------------------------------------------------
 
     @classmethod
-    def addMaintenanceLog(cls, log) :
+    def addMaintenanceLog(cls, log : MaintenanceLog) :
         cls.maintenanceLogs.append(log)
 
     @classmethod
@@ -140,7 +141,7 @@ class ObjectUtilities :
         return len(cls.maintenanceLogs)
     
     @classmethod
-    def getLog(cls, index) :
+    def getLog(cls, index : int) :
         return cls.maintenanceLogs[index]
     
     @classmethod
@@ -148,7 +149,7 @@ class ObjectUtilities :
         return cls.maintenanceLogs[ObjectUtilities.getNumLogs() -1].getLogID() + 1
 
     @classmethod
-    def createAutomatedOperationalLog(cls, actionCompleted, component) :
+    def createAutomatedOperationalLog(cls, actionCompleted : str, component : Component) :
         todaysDate = datetime.today().strftime("%d/%m/%Y")
         newLog = MaintenanceLog(logID=ObjectUtilities.getNextLogID(), datePerformed=todaysDate, action=actionCompleted, component=component, userPerforming=ObjectUtilities.getLoggedInAs())
         ObjectUtilities.addMaintenanceLog(newLog)
@@ -160,7 +161,7 @@ class ObjectUtilities :
 #   ---           Will be used to hash passwords           ---
 #   ----------------------------------------------------------
     @classmethod
-    def hashString(cls, rawString) :
+    def hashString(cls, rawString : str) :
         byteString = rawString.encode('utf-8')
         salt = bcrypt.gensalt()
         hashedString = bcrypt.hashpw(byteString, salt).strip().decode() #.decode gets rid of python wrapper for byte objects
@@ -171,7 +172,7 @@ class ObjectUtilities :
 #   --- Compares entered userIDs and passwords. Returns true if user exists ---
 #   ---------------------------------------------------------------------------
     @classmethod
-    def authenticateUser(cls, checkUserID, checkPassword) :
+    def authenticateUser(cls, checkUserID : str, checkPassword : str) :
         # tries to convert entered userID to int, if it doesn't work then its incorrect
         try :
             checkUserID = int (checkUserID)
