@@ -6,7 +6,6 @@ from ComponentClass import StatusT, Component
 from MaintenanceLogClass import MaintenanceLog
 from LocationClass import Location, LocationT
 from EngineerClass import Engineer
-from NotificationClass import Notification
 from DatabaseManagerClass import DatabaseManager
 from NotificationManagerClass import NotificationManager
 
