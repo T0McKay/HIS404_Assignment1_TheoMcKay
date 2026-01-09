@@ -75,6 +75,7 @@ class UIManager :
             rootWindow.destroy()
             UIManager.showInventoryPage()
 
+
 #   -------------------------------------------------------------------------------------------
 #   ---                                Create Window Menu                                   ---
 #   --- Used by all page methods excluding login to create root with identical menu options ---
@@ -129,6 +130,32 @@ class UIManager :
 
         return root
 
+
+#   -------------------------------------------------------------------------------------------
+#   ---                                Create Window Menu                                   ---
+#   --- Used by all page methods excluding login to create root with identical menu options ---
+#   -------------------------------------------------------------------------------------------
+    @classmethod
+    def createTableView(cls, root, frame, title, headings) :
+        #title label
+        if title is not None :
+            label = Label(frame, text=title)
+            label.pack(pady=5)
+
+        #component table created with column headers
+        treeView = ttk.Treeview(root, columns=headings, show="headings")
+
+        #prints headers
+        for col in headings :
+            treeView.heading(col, text=col)
+            treeView.column(col, anchor="center", stretch=True)
+
+        #scrollbar 
+        scrollbar = ttk.Scrollbar(frame, orient="vertical", command=treeView.yview)
+        treeView.configure(yscrollcommand=scrollbar.set)
+
+        return treeView
+
 #   ----------------------------------------------------------
 #   ---                 Show Inventory Page                ---
 #   --- Displays components currently loaded in at runtime ---
@@ -142,28 +169,15 @@ class UIManager :
         frame = Frame(root)
         frame.pack(fill=BOTH, expand=True)
 
-        #inventory title label
-        componentsLabel = Label(frame, text="Components Inventory")
-        componentsLabel.pack(pady=5)
-
-        #component table created with column headers
-        treeView = ttk.Treeview(root, columns=("ComponentID", "Type", "Quantity", "Status", "Location"), show="headings")
-
-        #prints headers
-        for col in ("ComponentID", "Type", "Quantity", "Status", "Location") :
-            treeView.heading(col, text=col)
-            treeView.column(col, anchor="center", stretch=True, width=100)
+        #creates default table layout
+        table : ttk.Treeview = UIManager.createTableView(root=root, frame=frame, title="Components Inventory", headings=("ComponentID", "Type", "Quantity", "Status", "Location"))
 
         #displays loaded components in table
         for component in range(ObjectUtilities.getNumComponents()) :
             comp = ObjectUtilities.getComponent(component)
-            treeView.insert("", "end", values=(str(comp.getComponentID()), str(comp.getComponentType()), str(comp.getQuantity()), comp.getStatus().name, comp.getLocation().getName()))
+            table.insert("", "end", values=(str(comp.getComponentID()), str(comp.getComponentType()), str(comp.getQuantity()), comp.getStatus().name, comp.getLocation().getName()))
 
-        #scrollbar 
-        scrollbar = ttk.Scrollbar(frame, orient="vertical", command=treeView.yview)
-        treeView.configure(yscrollcommand=scrollbar.set)
-
-        treeView.pack(padx=5, pady=5, expand=True)
+        table.pack(padx=5, pady=5, expand=True)
         root.mainloop()
 
 #   ----------------------------------------------------------------------------------------------
@@ -287,28 +301,14 @@ class UIManager :
         frame = Frame(root)
         frame.pack(fill=BOTH, expand=True)
 
-        #title label
-        locationsLabel = Label(frame, text="Locations")
-        locationsLabel.pack(pady=5)
-
-        #location table created with column headers
-        treeView = ttk.Treeview(root, columns=("LocationID", "Name", "Type", "Postcode"), show="headings")
-
-        #prints headers
-        for col in ("LocationID", "Name", "Type", "Postcode") :
-            treeView.heading(col, text=col)
-            treeView.column(col, anchor="center", stretch=True, width=100)
+        table = UIManager.createTableView(root=root, frame=frame, title="Locations", headings=("LocationID", "Name", "Type", "Postcode"))
 
         #displays loaded locations in table
         for location in range(ObjectUtilities.getNumLocations()) :
             loc = ObjectUtilities.getLocation(location)
-            treeView.insert("", "end", values=(str(loc.getLocationID()), str(loc.getName()), loc.getLocationType().name, loc.getPostcode()))
+            table.insert("", "end", values=(str(loc.getLocationID()), str(loc.getName()), loc.getLocationType().name, loc.getPostcode()))
 
-        #scrollbar 
-        scrollbar = ttk.Scrollbar(frame, orient="vertical", command=treeView.yview)
-        treeView.configure(yscrollcommand=scrollbar.set)
-
-        treeView.pack(padx=5, pady=5, expand=True)
+        table.pack(padx=5, pady=5, expand=True)
         root.mainloop()
 
 #   -----------------------------------------------------
@@ -324,17 +324,7 @@ class UIManager :
         frame = Frame(root)
         frame.pack(fill=BOTH, expand=True)
 
-        #title label
-        usersLabel = Label(frame, text="Users")
-        usersLabel.pack(pady=5)
-
-        #user table created with column headers
-        treeView = ttk.Treeview(root, columns=("UserID", "Name", "Role"), show="headings")
-
-        #prints headers
-        for col in ("UserID", "Name", "Role") :
-            treeView.heading(col, text=col)
-            treeView.column(col, anchor="center", stretch=True, width=100)
+        table = UIManager.createTableView(root=root, frame=frame, title="Users", headings=("UserID", "Name", "Role"))
 
         #displays loaded users in table
         for user in range(ObjectUtilities.getNumUsers()) :
@@ -344,13 +334,9 @@ class UIManager :
             else :
                 role = "ENGINEER"
 
-            treeView.insert("", "end", values=(str(usr.getUserID()), usr.getName(), role))
+            table.insert("", "end", values=(str(usr.getUserID()), usr.getName(), role))
 
-        #scrollbar 
-        scrollbar = ttk.Scrollbar(frame, orient="vertical", command=treeView.yview)
-        treeView.configure(yscrollcommand=scrollbar.set)
-
-        treeView.pack(padx=5, pady=5, expand=True)
+        table.pack(padx=5, pady=5, expand=True)
         root.mainloop()
 
 #   ------------------------------------------------------------------------------------------
@@ -977,20 +963,10 @@ class UIManager :
 
         #creates frame to holder the table and scroll bar
         frame = Frame(root)
-        frame.config(width=500)
+        frame.config(width=750)
         frame.pack(fill=BOTH, expand=True)
 
-        #title label
-        notifLabel = Label(frame, text="Notifications")
-        notifLabel.pack(pady=5)
-
-        #notification table created with column headers
-        treeView = ttk.Treeview(root, columns=("NotificationID", "ComponentID", "Message"), show="headings")
-
-        #prints headers
-        for col in ("NotificationID", "ComponentID", "Message") :
-            treeView.heading(col, text=col)
-            treeView.column(col, anchor="center", stretch=True)
+        table= UIManager.createTableView(root=root, frame=frame, title="Notifications", headings=("NotificationID", "ComponentID", "Message"))
 
         #updates notifications
         NotificationManager.updateNotifications()
@@ -998,11 +974,7 @@ class UIManager :
         #displays loaded locations in table
         for notification in range(NotificationManager.getNumNotifs()) :
             notif = NotificationManager.getNotification(notification)
-            treeView.insert("", "end", values=(str(notif.getNotifID()), str(notif.getComponent().getComponentID()), str(notif.getMessage())))
+            table.insert("", "end", values=(str(notif.getNotifID()), str(notif.getComponent().getComponentID()), str(notif.getMessage())))
 
-        #scrollbar 
-        scrollbar = ttk.Scrollbar(frame, orient="vertical", command=treeView.yview)
-        treeView.configure(yscrollcommand=scrollbar.set)
-
-        treeView.pack(padx=5, pady=5, expand=True)
+        table.pack(padx=5, pady=5, expand=True)
         root.mainloop()
