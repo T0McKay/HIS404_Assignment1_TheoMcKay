@@ -1,13 +1,18 @@
 from NotificationClass import Notification
 from ObjectUtilitiesClass import ObjectUtilities
 
-class NotificationManager :
-    #needs to be a static class so uses class methods
+#   --------------------------------------------------------------------------
+#   ---                   Notification Manager Class                       ---
+#   --- Used to manager notifications including updating, add and deleting ---
+#   --------------------------------------------------------------------------
 
-    #stores array
+class NotificationManager :
     notifications : list[Notification] = []
 
-    #needs a constant checker to be called every time page is opened/button refresh
+#   --------------------------------------------------------------------
+#   ---                   Update Notifications method                ---
+#   --- Checks whole database and creates notifications of low stock ---
+#   --------------------------------------------------------------------
     @classmethod
     def updateNotifications(cls) :
         cls.deleteNotifs()
@@ -25,6 +30,10 @@ class NotificationManager :
                 newNotif = Notification(notifID=comp, relatedComponent=queriedComponent, message=newMessage)
                 cls.notifications.append(newNotif)
 
+#   --------------------------------------------------------------
+#   ---                Getter and Delete methods               ---
+#   --- Used to get, get the number of or delete notifications ---
+#   --------------------------------------------------------------
     @classmethod
     def deleteNotifs(cls) :
         for notif in range(cls.getNumNotifs()) :
