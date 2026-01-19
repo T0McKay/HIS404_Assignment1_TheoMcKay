@@ -100,3 +100,5 @@ class System :
 
         #connection closed as no longer needed
         conn.close()
+
+System.systemStartup()

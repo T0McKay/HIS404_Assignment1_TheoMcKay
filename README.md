@@ -13,7 +13,7 @@ To run this program, you will need to install the following :
 These can also be found in the requirements.txt file for automated install.
 
 ## How-To Guide
-To start the program run Main.py
+To start the program run System.py
 
 To login as a generic engineer :
 - UserID   : 6767
