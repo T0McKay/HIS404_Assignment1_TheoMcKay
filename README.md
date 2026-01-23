@@ -19,7 +19,7 @@ To login as a generic engineer :
 - UserID   : 6767
 - Password : password
 
-To login as with manager permissions : 
+To login with manager permissions : 
 - User ID  : 4567
 - Password : manager
 
