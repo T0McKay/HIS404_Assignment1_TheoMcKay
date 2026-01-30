@@ -588,8 +588,8 @@ class UIManager :
                     validSubmission = False
             
             #gets component from box
-            selectedComponentID = int(componentSelect.get())
             try :
+                selectedComponentID = int(componentSelect.get())
                 selectedComp = components[selectedComponentID]
             except Exception :
                 validSubmission = False
